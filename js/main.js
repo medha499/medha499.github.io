@@ -49,16 +49,18 @@ let selectedCity = null;
 let selectedProduct = null;
 let navigationStack = [];
 
-// Professional color scheme - neutral and production-ready
+// Professional color scheme - vibrant but production-ready
 const colors = {
-  primary: '#2d3748',     // Dark slate
-  secondary: '#4a5568',   // Medium slate  
-  tertiary: '#718096',    // Light slate
-  accent: '#3182ce',      // Professional blue
-  success: '#38a169',     // Subdued green
-  warning: '#d69e2e',     // Muted orange
+  primary: '#1a365d',     // Deep blue
+  secondary: '#2d3748',   // Charcoal  
+  tertiary: '#4a5568',    // Medium grey
+  accent: '#3182ce',      // Bright blue
+  success: '#38a169',     // Green
+  warning: '#ed8936',     // Orange
+  purple: '#805ad5',      // Purple
+  teal: '#319795',        // Teal
   light: '#f7fafc',       // Very light grey
-  dark: '#1a202c'         // Very dark slate
+  dark: '#1a202c'         // Very dark
 };
 
 function initializeVisualization(data) {
@@ -97,13 +99,13 @@ function showOverview() {
       <p class="scene-description">
         Total revenue across European markets for 2022. Click any bar to explore product performance in that city.
       </p>
-      <div style="display: flex; gap: 30px; margin-top: 20px;">
-        <div style="flex: 2;">
+      <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+        <div style="flex: 2; min-width: 0;">
           <div class="chart-container">
             <div id="chart"></div>
           </div>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 280px;">
           <div class="insights-box">
             <h4>💡 Key Insights</h4>
             <div id="overview-insights">
@@ -134,13 +136,13 @@ function showCityProducts(city) {
       <p class="scene-description">
         Revenue breakdown by product category in ${city}. Click any bar to see customer purchase preferences.
       </p>
-      <div style="display: flex; gap: 30px; margin-top: 20px;">
-        <div style="flex: 2;">
+      <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+        <div style="flex: 2; min-width: 0;">
           <div class="chart-container">
             <div id="chart"></div>
           </div>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 280px;">
           <div class="insights-box">
             <h4>📊 Market Analysis</h4>
             <div id="city-insights"></div>
@@ -166,13 +168,13 @@ function showProductDetails(city, product) {
       <p class="scene-description">
         How customers prefer to purchase ${product} in ${city} - Online vs In-store preferences for strategic planning.
       </p>
-      <div style="display: flex; gap: 30px; margin-top: 20px;">
-        <div style="flex: 2;">
+      <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
+        <div style="flex: 2; min-width: 0;">
           <div class="chart-container">
             <div id="chart"></div>
           </div>
         </div>
-        <div style="flex: 1;">
+        <div style="flex: 1; min-width: 280px;">
           <div class="insights-box">
             <h4>🎯 Strategic Recommendations</h4>
             <div id="channel-insights"></div>
