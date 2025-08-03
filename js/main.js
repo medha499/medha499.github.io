@@ -57,7 +57,8 @@ const colors = {
   accent: '#3182ce',      // Bright blue
   success: '#38a169',     // Green
   warning: '#ed8936',     // Orange
-  purple: "#CBC3E3", 
+  purple: "#FFFAFA",
+  //"#CBC3E3", 
   ///'#805ad5',      // Purple
   teal: '#319795',        // Teal
   light: '#f7fafc',       // Very light grey
