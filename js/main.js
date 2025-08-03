@@ -100,14 +100,14 @@ function showOverview() {
         Total revenue across European markets for 2022. Click any bar to explore product performance in that city.
       </p>
       <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
-        <div style="flex: 2; min-width: 0;">
+        <div style="flex: 3; min-width: 0;">
           <div class="chart-container">
             <div id="chart"></div>
           </div>
         </div>
-        <div style="flex: 1; min-width: 280px;">
-          <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">💡 Key Insights</h4>
+        <div style="flex: 1; min-width: 240px; max-width: 280px;">
+          <div style="padding: 15px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;">💡 Key Insights</h4>
             <div id="overview-insights">
               <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
               <p>• Focus expansion on top-performing cities</p>
@@ -137,14 +137,14 @@ function showCityProducts(city) {
         Revenue breakdown by product category in ${city}. Click any bar to see customer purchase preferences.
       </p>
       <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
-        <div style="flex: 2; min-width: 0;">
+        <div style="flex: 3; min-width: 0;">
           <div class="chart-container">
             <div id="chart"></div>
           </div>
         </div>
-        <div style="flex: 1; min-width: 280px;">
-          <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">📊 Market Analysis</h4>
+        <div style="flex: 1; min-width: 240px; max-width: 280px;">
+          <div style="padding: 15px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;">📊 Market Analysis</h4>
             <div id="city-insights"></div>
           </div>
         </div>
@@ -175,8 +175,8 @@ function showProductDetails(city, product) {
           </div>
         </div>
         <div style="flex: 1; min-width: 280px;">
-          <div class="insights-box">
-            <h4>🎯 Strategic Recommendations</h4>
+          <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">🎯 Strategic Recommendations</h4>
             <div id="channel-insights"></div>
           </div>
         </div>
@@ -299,7 +299,7 @@ function createCityChart() {
     .attr("y", d => y(d[1]))
     .attr("height", d => height - y(d[1]));
 
-  // Add value labels with beautiful styling
+  // Add simple value labels on top of bars
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -308,14 +308,13 @@ function createCityChart() {
     .attr("y", height)
     .attr("text-anchor", "middle")
     .attr("font-size", "12px")
-    .attr("font-weight", "700")
-    .attr("fill", "white")
-    .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8)")
+    .attr("font-weight", "600")
+    .attr("fill", "#2d3748")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
-    .duration(1200)
-    .delay((d, i) => i * 150)
-    .attr("y", d => y(d[1]) + 25);
+    .duration(800)
+    .delay((d, i) => i * 100)
+    .attr("y", d => y(d[1]) - 5); // Position above bars
 
   // Create X-axis with NO rotation for better readability
   const xAxis = g.append("g")
@@ -546,7 +545,7 @@ function createProductChart(city) {
     .delay((d, i) => i * 150)
     .attr("width", d => x(d[1]));
 
-  // Value labels with enhanced styling
+  // Simple value labels outside bars
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -555,15 +554,14 @@ function createProductChart(city) {
     .attr("x", 0)
     .attr("dy", "0.35em")
     .attr("font-size", "13px")
-    .attr("font-weight", "700")
-    .attr("fill", "#1a202c")
+    .attr("font-weight", "600")
+    .attr("fill", "#2d3748")
     .attr("text-anchor", "start")
-    .style("text-shadow", "2px 2px 4px rgba(255,255,255,0.9)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
-    .duration(1400)
-    .delay((d, i) => i * 120)
-    .attr("x", d => x(d[1]) + 20);
+    .duration(800)
+    .delay((d, i) => i * 100)
+    .attr("x", d => x(d[1]) + 10);
 
   // Create X axis
   const xAxis = g.append("g")
@@ -673,7 +671,7 @@ function createChannelChart(city, product) {
       .attr("text-anchor", "middle")
       .attr("font-size", "24px")
       .attr("font-weight", "600")
-      .attr("fill", colors.primary)
+      .attr("fill", "#2d3748")
       .text(`No data available`);
     
     svg.append("text")
@@ -681,11 +679,11 @@ function createChannelChart(city, product) {
       .attr("y", containerHeight / 2 + 10)
       .attr("text-anchor", "middle")
       .attr("font-size", "18px")
-      .attr("fill", colors.secondary)
+      .attr("fill", "#4a5568")
       .text(`${product} in ${city}`);
     
     document.getElementById('channel-insights').innerHTML = `
-      <p style="color: ${colors.warning};">⚠️ No purchase channel data found for this combination</p>
+      <p style="margin: 10px 0; font-size: 14px; color: #ed8936; line-height: 1.5;">⚠️ No purchase channel data found for this combination</p>
     `;
     return;
   }
@@ -715,7 +713,7 @@ function createChannelChart(city, product) {
       .attr("text-anchor", "middle")
       .attr("font-size", "20px")
       .attr("font-weight", "600")
-      .attr("fill", colors.primary)
+      .attr("fill", "#2d3748")
       .text(`Purchase channel data not available`);
     
     svg.append("text")
@@ -723,12 +721,12 @@ function createChannelChart(city, product) {
       .attr("y", containerHeight / 2 + 15)
       .attr("text-anchor", "middle")
       .attr("font-size", "16px")
-      .attr("fill", colors.secondary)
+      .attr("fill", "#4a5568")
       .text(`for ${product} in ${city}`);
     
     document.getElementById('channel-insights').innerHTML = `
-      <p style="color: ${colors.warning};">⚠️ Purchase type data needs proper formatting</p>
-      <p>Found ${filtered.length} orders but purchase types are not categorized</p>
+      <p style="margin: 10px 0; font-size: 14px; color: #ed8936; line-height: 1.5;">⚠️ Purchase type data needs proper formatting</p>
+      <p style="margin: 10px 0; font-size: 14px; color: #4a5568; line-height: 1.5;">Found ${filtered.length} orders but purchase types are not categorized</p>
     `;
     return;
   }
@@ -793,7 +791,7 @@ function createChannelChart(city, product) {
       tooltip.transition().duration(300).style("opacity", 0);
     });
 
-  // CLEAN percentage labels - only show for larger slices
+  // Simple percentage labels
   slices.append("text")
     .attr("transform", d => {
       const centroid = arc.centroid(d);
@@ -804,7 +802,6 @@ function createChannelChart(city, product) {
     .style("font-size", "14px")
     .style("font-weight", "bold")
     .style("fill", "white")
-    .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8)")
     .text(d => {
       const total = d3.sum(validGrouped, d => Math.round(d[1].quantity));
       const cleanQuantity = Math.round(d.data[1].quantity);
@@ -823,17 +820,17 @@ function createChannelChart(city, product) {
     .attr("y", 0)
     .style("font-size", "16px")
     .style("font-weight", "bold")
-    .style("fill", colors.primary)
+    .style("fill", "#2d3748")
     .text("Purchase Channels");
 
   legend.append("text")
     .attr("x", 0)
     .attr("y", 20)
     .style("font-size", "14px")
-    .style("fill", colors.secondary)
+    .style("fill", "#4a5568")
     .text(`in ${city}`);
 
-  // Legend items with FIXED formatting
+  // Legend items with simple styling
   validGrouped.forEach((d, i) => {
     const legendRow = legend.append("g")
       .attr("transform", `translate(0, ${50 + i * 45})`);
@@ -842,7 +839,7 @@ function createChannelChart(city, product) {
       .attr("cx", 12)
       .attr("cy", 12)
       .attr("r", 10)
-      .attr("fill", colorMap[d[0]] || colors.tertiary);
+      .attr("fill", colorMap[d[0]] || '#718096');
 
     legendRow.append("text")
       .attr("x", 30)
@@ -850,7 +847,7 @@ function createChannelChart(city, product) {
       .attr("dy", "0.35em")
       .style("font-size", "15px")
       .style("font-weight", "600")
-      .style("fill", colors.primary)
+      .style("fill", "#2d3748")
       .text(d[0]);
 
     const total = d3.sum(validGrouped, d => d[1].quantity);
@@ -861,7 +858,7 @@ function createChannelChart(city, product) {
       .attr("x", 30)
       .attr("y", 28)
       .style("font-size", "13px")
-      .style("fill", colors.secondary)
+      .style("fill", "#4a5568")
       .text(`${cleanQuantity} orders (${percentage}%)`);
   });
 
