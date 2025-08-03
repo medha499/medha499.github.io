@@ -57,8 +57,7 @@ const colors = {
   accent: '#3182ce',      // Bright blue
   success: '#38a169',     // Green
   warning: '#ed8936',     // Orange
-  purple: '#e2d2c3',
-
+  purple: '#805ad5',
   ///'#805ad5',      // Purple
   teal: '#319795',        // Teal
   light: '#f7fafc',       // Very light grey
@@ -613,7 +612,6 @@ function createProductChart(city) {
     <p>• <strong>${topProduct[0]}</strong> dominates with ${topShare}% market share</p>
     <p>• Total ${city} revenue: <strong>${formatNumber(totalRevenue)}</strong></p>
     <p>• ${grouped.length} product categories active in this market</p>
-    <p>• Focus marketing efforts on top-performing categories for 2023</p>
   `;
 }
 
@@ -862,14 +860,6 @@ function createChannelChart(city, product) {
     const topQuantity = Math.round(topChannel[1].quantity);
     const topPercentage = Math.round((topQuantity / totalQuantity) * 100);
     
-    let recommendation = "";
-    if (topChannel[0].includes("Online")) {
-      recommendation = "Invest in digital marketing and mobile optimization";
-    } else if (topChannel[0].includes("store")) {
-      recommendation = "Focus on in-store experience enhancement";
-    } else {
-      recommendation = `Optimize ${topChannel[0]} operations for better efficiency`;
-    }
     
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
