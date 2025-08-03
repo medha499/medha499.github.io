@@ -57,7 +57,8 @@ const colors = {
   accent: '#3182ce',      // Bright blue
   success: '#38a169',     // Green
   warning: '#ed8936',     // Orange
-  purple: '#805ad5',      // Purple
+  purple: "#CBC3E3", 
+  ///'#805ad5',      // Purple
   teal: '#319795',        // Teal
   light: '#f7fafc',       // Very light grey
   dark: '#1a202c'         // Very dark
@@ -107,11 +108,9 @@ function showOverview() {
         </div>
         <div style="flex: 1; min-width: 240px; max-width: 280px;">
           <div style="padding: 15px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;">💡 Key Insights</h4>
+            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;"> Key Insights</h4>
             <div id="overview-insights">
               <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
-              <p>• Focus expansion on top-performing cities</p>
-              <p>• Consider operational improvements in underperforming markets</p>
             </div>
           </div>
         </div>
@@ -144,7 +143,7 @@ function showCityProducts(city) {
         </div>
         <div style="flex: 1; min-width: 240px; max-width: 280px;">
           <div style="padding: 15px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;">📊 Market Analysis</h4>
+            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;"> Key Insights: </h4>
             <div id="city-insights"></div>
           </div>
         </div>
@@ -176,7 +175,7 @@ function showProductDetails(city, product) {
         </div>
         <div style="flex: 1; min-width: 280px;">
           <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">🎯 Strategic Recommendations</h4>
+            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;"> Key Insights: </h4>
             <div id="channel-insights"></div>
           </div>
         </div>
@@ -346,18 +345,6 @@ function createCityChart() {
   yAxis.select(".domain").remove();
   xAxis.select(".domain").remove();
   
-  // Add modern grid lines
-  g.selectAll(".grid-line")
-    .data(y.ticks(6))
-    .enter().append("line")
-    .attr("class", "grid-line")
-    .attr("x1", 0)
-    .attr("x2", width)
-    .attr("y1", d => y(d))
-    .attr("y2", d => y(d))
-    .attr("stroke", "#e2e8f0")
-    .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "3,3");
 
   // Add modern axis labels
   g.append("text")
@@ -426,8 +413,6 @@ function createCityChart() {
   document.getElementById('overview-insights').innerHTML = `
     <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
-    <p>• Focus expansion on top-performing cities for maximum ROI</p>
-    <p>• Consider market entry strategies for underperforming regions</p>
   `;
 }
 
@@ -592,18 +577,6 @@ function createProductChart(city) {
   yAxis.select(".domain").remove();
   xAxis.select(".domain").remove();
 
-  // Add subtle grid lines
-  g.selectAll(".grid-line")
-    .data(x.ticks(5))
-    .enter().append("line")
-    .attr("class", "grid-line")
-    .attr("x1", d => x(d))
-    .attr("x2", d => x(d))
-    .attr("y1", 0)
-    .attr("y2", height)
-    .attr("stroke", "#e2e8f0")
-    .attr("stroke-width", 1)
-    .attr("stroke-dasharray", "3,3");
 
   // Beautiful axis labels
   g.append("text")
@@ -635,7 +608,6 @@ function createProductChart(city) {
     <p>• <strong>${topProduct[0]}</strong> dominates with ${topShare}% market share</p>
     <p>• Total ${city} revenue: <strong>${formatNumber(totalRevenue)}</strong></p>
     <p>• ${grouped.length} product categories active in this market</p>
-    <p>• Focus marketing efforts on top-performing categories for 2023</p>
   `;
 }
 
@@ -917,20 +889,10 @@ function createChannelChart(city, product) {
     const topQuantity = Math.round(topChannel[1].quantity);
     const topPercentage = Math.round((topQuantity / totalQuantity) * 100);
     
-    let recommendation = "";
-    if (topChannel[0].includes("Online")) {
-      recommendation = "Invest in digital marketing and mobile optimization";
-    } else if (topChannel[0].includes("store")) {
-      recommendation = "Focus on in-store experience enhancement";
-    } else {
-      recommendation = `Optimize ${topChannel[0]} operations for better efficiency`;
-    }
     
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
       <p>• Total orders: <strong>${totalQuantity}</strong> for this product</p>
-      <p>• <strong>Strategy:</strong> ${recommendation}</p>
-      <p>• Consider channel-specific promotions to boost alternatives</p>
     `;
   }
 }
