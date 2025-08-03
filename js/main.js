@@ -299,7 +299,7 @@ function createCityChart() {
     .attr("y", d => y(d[1]))
     .attr("height", d => height - y(d[1]));
 
-  // Add value labels INSIDE bars - much better positioning
+  // Add value labels with beautiful styling
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -310,12 +310,12 @@ function createCityChart() {
     .attr("font-size", "12px")
     .attr("font-weight", "700")
     .attr("fill", "white")
-    .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.7)")
+    .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
-    .duration(1000)
+    .duration(1200)
     .delay((d, i) => i * 150)
-    .attr("y", d => y(d[1]) + 20); // Position well inside the bar
+    .attr("y", d => y(d[1]) + 25);
 
   // Create X-axis with NO rotation for better readability
   const xAxis = g.append("g")
@@ -323,11 +323,11 @@ function createCityChart() {
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
-  // Style X-axis text - NO ROTATION, larger font
+  // Style X-axis text - modern and clean
   xAxis.selectAll("text")
     .style("font-size", "14px")
     .style("font-weight", "600")
-    .style("fill", colors.primary)
+    .style("fill", "#2d3748")
     .style("text-anchor", "middle");
 
   // Create Y-axis
@@ -341,13 +341,13 @@ function createCityChart() {
   yAxis.selectAll("text")
     .style("font-size", "13px")
     .style("font-weight", "500")
-    .style("fill", colors.primary);
+    .style("fill", "#2d3748");
 
   // Remove default axis lines and add custom styling
   yAxis.select(".domain").remove();
   xAxis.select(".domain").remove();
   
-  // Add subtle grid lines
+  // Add modern grid lines
   g.selectAll(".grid-line")
     .data(y.ticks(6))
     .enter().append("line")
@@ -356,20 +356,21 @@ function createCityChart() {
     .attr("x2", width)
     .attr("y1", d => y(d))
     .attr("y2", d => y(d))
-    .attr("stroke", "#f0f0f0")
-    .attr("stroke-width", 1);
+    .attr("stroke", "#e2e8f0")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "3,3");
 
-  // Add axis labels with MUCH better positioning
+  // Add modern axis labels
   g.append("text")
     .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 40)  // More space from edge
+    .attr("y", -margin.left + 40)
     .attr("x", -height / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
     .style("font-size", "16px")
-    .style("font-weight", "700")
-    .style("fill", colors.primary)
+    .style("font-weight", "600")
+    .style("fill", "#2d3748")
     .text("Revenue (USD)");
 
   g.append("text")
@@ -377,8 +378,8 @@ function createCityChart() {
     .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 30})`)
     .style("text-anchor", "middle")
     .style("font-size", "16px")
-    .style("font-weight", "700")
-    .style("fill", colors.primary)
+    .style("font-weight", "600")
+    .style("fill", "#2d3748")
     .text("City");
 
   // Add professional annotation for top performer with clean numbers
@@ -545,7 +546,7 @@ function createProductChart(city) {
     .delay((d, i) => i * 150)
     .attr("width", d => x(d[1]));
 
-  // Value labels with beautiful styling
+  // Value labels with enhanced styling
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -555,14 +556,14 @@ function createProductChart(city) {
     .attr("dy", "0.35em")
     .attr("font-size", "13px")
     .attr("font-weight", "700")
-    .attr("fill", "#2d3748")
+    .attr("fill", "#1a202c")
     .attr("text-anchor", "start")
-    .style("text-shadow", "1px 1px 2px rgba(255,255,255,0.8)")
+    .style("text-shadow", "2px 2px 4px rgba(255,255,255,0.9)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
-    .duration(1200)
-    .delay((d, i) => i * 150)
-    .attr("x", d => x(d[1]) + 15);
+    .duration(1400)
+    .delay((d, i) => i * 120)
+    .attr("x", d => x(d[1]) + 20);
 
   // Create X axis
   const xAxis = g.append("g")
@@ -575,7 +576,7 @@ function createProductChart(city) {
   xAxis.selectAll("text")
     .style("font-size", "12px")
     .style("font-weight", "500")
-    .style("fill", "#2d3748");
+    .style("fill", "#1a202c");
 
   // Create Y axis with beautiful product names
   const yAxis = g.append("g")
@@ -585,7 +586,7 @@ function createProductChart(city) {
   yAxis.selectAll("text")
     .style("font-size", "14px")
     .style("font-weight", "600")
-    .style("fill", "#2d3748")
+    .style("fill", "#1a202c")
     .style("text-anchor", "end")
     .attr("x", -15);
 
@@ -611,9 +612,9 @@ function createProductChart(city) {
     .attr("class", "x-axis-label")
     .attr("transform", `translate(${width / 2}, ${height + 60})`)
     .style("text-anchor", "middle")
-    .style("font-size", "15px")
+    .style("font-size", "16px")
     .style("font-weight", "600")
-    .style("fill", "#2d3748")
+    .style("fill", "#1a202c")
     .text("Revenue (USD)");
 
   g.append("text")
@@ -622,9 +623,9 @@ function createProductChart(city) {
     .attr("y", -margin.left + 50)
     .attr("x", -height / 2)
     .style("text-anchor", "middle")
-    .style("font-size", "15px")
+    .style("font-size", "16px")
     .style("font-weight", "600")
-    .style("fill", "#2d3748")
+    .style("fill", "#1a202c")
     .text("Product Category");
 
   // Update insights
@@ -811,15 +812,6 @@ function createChannelChart(city, product) {
       return percentage > 10 ? percentage + "%" : "";
     });
 
-  // SIMPLE center title - no overlapping text
-  g.append("text")
-    .attr("text-anchor", "middle")
-    .attr("font-size", "16px")
-    .attr("font-weight", "bold")
-    .attr("fill", colors.primary)
-    .attr("y", 0)
-    .text(`${product} Channels`);
-
   // CLEAN legend positioned on the right
   const legend = svg.append("g")
     .attr("class", "legend")
@@ -940,6 +932,8 @@ function createChannelChart(city, product) {
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
       <p>• Total orders: <strong>${totalQuantity}</strong> for this product</p>
+      <p>• <strong>Strategy:</strong> ${recommendation}</p>
+      <p>• Consider channel-specific promotions to boost alternatives</p>
     `;
   }
 }
