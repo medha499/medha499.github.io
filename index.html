@@ -1,16 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-
   <meta charset="UTF-8">
-  <title>Restaurant Sales Drilldown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Restaurant Sales Performance Analysis</title>
   <link rel="stylesheet" href="css/style.css">
- <script src="https://d3js.org/d3.v7.min.js"></script>
-<script src="https://unpkg.com/d3-annotation@2.5.1/dist/d3-annotation.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3-annotation/2.5.1/d3-annotation.min.js"></script>
 </head>
 <body>
-  <div id="vis"></div>
+  <div class="container">
+    <div class="header">
+      <h1>Restaurant Sales Performance Analysis</h1>
+      <p>Explore sales data across cities, products, and purchase types</p>
+    </div>
+    
+    <div class="navigation">
+      <div class="breadcrumb" id="breadcrumb">
+        <span class="active">Overview</span>
+      </div>
+      <button class="nav-button" id="backButton" onclick="goBack()" disabled>
+        ← Go Back
+      </button>
+    </div>
+
+    <div class="content">
+      <div id="sceneContent"></div>
+    </div>
+  </div>
+
   <script src="js/main.js"></script>
 </body>
 </html>
