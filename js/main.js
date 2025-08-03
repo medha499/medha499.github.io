@@ -143,7 +143,7 @@ function showCityProducts(city) {
         </div>
         <div style="flex: 1; min-width: 240px; max-width: 280px;">
           <div style="padding: 15px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;"> Key Insights: </h4>
+            <h4 style="margin: 0 0 12px 0; color: #2d3748; font-size: 15px; font-weight: 600;"> Key Insights </h4>
             <div id="city-insights"></div>
           </div>
         </div>
@@ -165,7 +165,7 @@ function showProductDetails(city, product) {
     <div class="scene-content">
       <h2 class="scene-title">${product} Purchase Channels in ${city}</h2>
       <p class="scene-description">
-        How customers prefer to purchase ${product} in ${city} - Online vs In-store preferences for strategic planning.
+        How customers prefer to purchase ${product} in ${city} - Online vs In-store preferences for strategic planning. Click on each pie to learn more
       </p>
       <div style="display: flex; gap: 40px; margin-top: 30px; align-items: flex-start;">
         <div style="flex: 2; min-width: 0;">
@@ -175,7 +175,7 @@ function showProductDetails(city, product) {
         </div>
         <div style="flex: 1; min-width: 280px;">
           <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
-            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;"> Key Insights: </h4>
+            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;"> Key Insights </h4>
             <div id="channel-insights"></div>
           </div>
         </div>
@@ -848,28 +848,13 @@ function createChannelChart(city, product) {
     
     // Draw line to pie slice
     const sliceCentroid = arc.centroid(topSlice);
-    annotationGroup.append("line")
-      .attr("x1", centerX + sliceCentroid[0] * 1.1)
-      .attr("y1", centerY + sliceCentroid[1] * 1.1)
-      .attr("x2", annotationX - 10)
-      .attr("y2", annotationY + 10)
-      .attr("stroke", colors.accent)
-      .attr("stroke-width", 2);
     
     annotationGroup.append("circle")
       .attr("cx", centerX + sliceCentroid[0] * 1.1)
       .attr("cy", centerY + sliceCentroid[1] * 1.1)
       .attr("r", 4)
       .attr("fill", colors.accent);
-    
-    annotationGroup.append("text")
-      .attr("x", annotationX)
-      .attr("y", annotationY)
-      .style("font-size", "14px")
-      .style("font-weight", "bold")
-      .style("fill", colors.primary)
-      .text("Dominant Channel");
-    
+
     const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
     const topQuantity = Math.round(topChannel[1].quantity);
     const dominantPercentage = Math.round((topQuantity / totalQuantity) * 100);
