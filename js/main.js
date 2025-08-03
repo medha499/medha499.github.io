@@ -75,8 +75,10 @@ function updateBreadcrumb() {
   if (selectedCity) {
     breadcrumbText += '<span class="separator">→</span><span class="active">' + selectedCity + ' Products</span>';
   }
-
-
+  
+  if (selectedProduct) {
+    breadcrumbText += '<span class="separator">→</span><span class="active">' + selectedProduct + ' Channels</span>';
+  }
   
   breadcrumb.innerHTML = breadcrumbText;
   
@@ -275,7 +277,7 @@ function createCityChart() {
       tooltip.html(`
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${d[0]}</div>
         <div style="margin: 4px 0;">2022 Revenue: <strong>${formatNumber(d[1])}</strong></div>
-        <div style="margin: 4px 0;">2023 Projection: <strong>${formatNumber(Math.round(d[1] * 1.15))}</strong></div>
+        <div style="margin: 4px 0;">2023 Projection: <strong>${formatNumber(d[1] * 1.15)}</strong></div>
         <div style="margin-top: 10px; font-style: italic; color: #718096; font-size: 12px;">Click to explore products</div>
       `)
       .style("left", (event.pageX + 15) + "px")
@@ -379,12 +381,12 @@ function createCityChart() {
     .style("fill", colors.primary)
     .text("City");
 
-  // Add professional annotation for top performer
+  // Add professional annotation for top performer with clean numbers
   const topCity = grouped.reduce((a, b) => a[1] > b[1] ? a : b);
   
   const annotations = [{
     note: {
-      label: `$${formatNumber(topCity[1])} revenue`,
+      label: `${formatNumber(topCity[1])} revenue`,
       title: `${topCity[0]}: Market Leader`,
       wrap: 160,
       align: "left"
@@ -424,6 +426,8 @@ function createCityChart() {
   document.getElementById('overview-insights').innerHTML = `
     <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
+    <p>• Focus expansion on top-performing cities for maximum ROI</p>
+    <p>• Consider market entry strategies for underperforming regions</p>
   `;
 }
 
@@ -460,18 +464,42 @@ function createProductChart(city) {
   const y = d3.scaleBand()
     .domain(grouped.map(d => d[0]))
     .range([0, height])
-    .padding(0.25);
+    .padding(0.3);
 
-  // Professional color scale
-  const colorScale = d3.scaleOrdinal()
-    .domain(grouped.map(d => d[0]))
-    .range([colors.accent, colors.success, colors.warning, colors.secondary, colors.tertiary, colors.purple]);
+  // Beautiful gradient colors for each bar
+  const defs = svg.append("defs");
+  
+  grouped.forEach((d, i) => {
+    const gradient = defs.append("linearGradient")
+      .attr("id", `barGradient${i}`)
+      .attr("gradientUnits", "userSpaceOnUse")
+      .attr("x1", 0).attr("y1", 0)
+      .attr("x2", "100%").attr("y2", 0);
+    
+    const colors = [
+      {start: '#667eea', end: '#764ba2'},
+      {start: '#f093fb', end: '#f5576c'},
+      {start: '#4facfe', end: '#00f2fe'},
+      {start: '#43e97b', end: '#38f9d7'},
+      {start: '#fa709a', end: '#fee140'}
+    ];
+    
+    const colorPair = colors[i % colors.length];
+    
+    gradient.append("stop")
+      .attr("offset", "0%")
+      .attr("stop-color", colorPair.start);
+    
+    gradient.append("stop")
+      .attr("offset", "100%")
+      .attr("stop-color", colorPair.end);
+  });
 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-  // Create horizontal bars
+  // Create beautiful horizontal bars with shadows
   g.selectAll(".bar")
     .data(grouped)
     .enter().append("rect")
@@ -480,15 +508,16 @@ function createProductChart(city) {
     .attr("height", y.bandwidth())
     .attr("x", 0)
     .attr("width", 0)
-    .attr("fill", d => colorScale(d[0]))
-    .attr("rx", 6)
+    .attr("fill", (d, i) => `url(#barGradient${i})`)
+    .attr("rx", 12) // More rounded corners
+    .attr("ry", 12)
     .style("cursor", "pointer")
+    .style("filter", "drop-shadow(0 4px 8px rgba(0,0,0,0.1))")
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition().duration(200)
-        .attr("opacity", 0.8)
-        .attr("stroke", colors.primary)
-        .attr("stroke-width", 3);
+        .style("filter", "drop-shadow(0 6px 12px rgba(0,0,0,0.15))")
+        .attr("transform", "translateY(-2px)");
       
       const percentage = ((d[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1);
       tooltip.transition().duration(200).style("opacity", .95);
@@ -504,19 +533,19 @@ function createProductChart(city) {
     .on("mouseout", function(d) {
       d3.select(this)
         .transition().duration(200)
-        .attr("opacity", 1)
-        .attr("stroke", "none");
+        .style("filter", "drop-shadow(0 4px 8px rgba(0,0,0,0.1))")
+        .attr("transform", "translateY(0px)");
       tooltip.transition().duration(300).style("opacity", 0);
     })
     .on("click", function(event, d) {
       showProductDetails(city, d[0]);
     })
     .transition()
-    .duration(800)
-    .delay((d, i) => i * 100)
+    .duration(1200)
+    .delay((d, i) => i * 150)
     .attr("width", d => x(d[1]));
 
-  // Value labels RIGHT outside bars for perfect visibility - FIXED FORMATTING
+  // Value labels with beautiful styling
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -526,13 +555,14 @@ function createProductChart(city) {
     .attr("dy", "0.35em")
     .attr("font-size", "13px")
     .attr("font-weight", "700")
-    .attr("fill", colors.primary)
+    .attr("fill", "#2d3748")
     .attr("text-anchor", "start")
+    .style("text-shadow", "1px 1px 2px rgba(255,255,255,0.8)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
-    .duration(800)
-    .delay((d, i) => i * 100)
-    .attr("x", d => x(d[1]) + 10); // Position just outside bar end
+    .duration(1200)
+    .delay((d, i) => i * 150)
+    .attr("x", d => x(d[1]) + 15);
 
   // Create X axis
   const xAxis = g.append("g")
@@ -545,9 +575,9 @@ function createProductChart(city) {
   xAxis.selectAll("text")
     .style("font-size", "12px")
     .style("font-weight", "500")
-    .style("fill", colors.primary);
+    .style("fill", "#2d3748");
 
-  // Create Y axis with SIMPLE product names - no wrapping needed with big margins
+  // Create Y axis with beautiful product names
   const yAxis = g.append("g")
     .attr("class", "y-axis")
     .call(d3.axisLeft(y));
@@ -555,15 +585,15 @@ function createProductChart(city) {
   yAxis.selectAll("text")
     .style("font-size", "14px")
     .style("font-weight", "600")
-    .style("fill", colors.primary)
+    .style("fill", "#2d3748")
     .style("text-anchor", "end")
-    .attr("x", -15); // Move labels further left for spacing
+    .attr("x", -15);
 
-  // Remove axis domains
+  // Remove axis domains for cleaner look
   yAxis.select(".domain").remove();
   xAxis.select(".domain").remove();
 
-  // Add light grid lines
+  // Add subtle grid lines
   g.selectAll(".grid-line")
     .data(x.ticks(5))
     .enter().append("line")
@@ -572,17 +602,18 @@ function createProductChart(city) {
     .attr("x2", d => x(d))
     .attr("y1", 0)
     .attr("y2", height)
-    .attr("stroke", "#f5f5f5")
-    .attr("stroke-width", 1);
+    .attr("stroke", "#e2e8f0")
+    .attr("stroke-width", 1)
+    .attr("stroke-dasharray", "3,3");
 
-  // Clean axis labels
+  // Beautiful axis labels
   g.append("text")
     .attr("class", "x-axis-label")
     .attr("transform", `translate(${width / 2}, ${height + 60})`)
     .style("text-anchor", "middle")
     .style("font-size", "15px")
     .style("font-weight", "600")
-    .style("fill", colors.primary)
+    .style("fill", "#2d3748")
     .text("Revenue (USD)");
 
   g.append("text")
@@ -593,40 +624,12 @@ function createProductChart(city) {
     .style("text-anchor", "middle")
     .style("font-size", "15px")
     .style("font-weight", "600")
-    .style("fill", colors.primary)
+    .style("fill", "#2d3748")
     .text("Product Category");
-
-  // Simple annotation for top product with clean numbers
-  const topProduct = grouped[0];
-  const topMarketShare = ((topProduct[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(0);
-  
-  const annotations = [{
-    note: {
-      label: `${topMarketShare}% market share`,
-      title: `Top Performer`,
-      align: "left"
-    },
-    x: x(topProduct[1]) + 20,
-    y: y(topProduct[0]) + y.bandwidth()/2,
-    dy: -25,
-    dx: 30,
-    type: d3.annotationCalloutElbow,
-    subject: {
-      radius: 6
-    }
-  }];
-
-  const makeAnnotations = d3.annotation()
-    .annotations(annotations);
-
-  g.append("g")
-    .attr("class", "annotation-group")
-    .style("font-size", "12px")
-    .style("font-weight", "500")
-    .call(makeAnnotations);
 
   // Update insights
   const totalRevenue = d3.sum(grouped, d => d[1]);
+  const topProduct = grouped[0];
   const topShare = ((topProduct[1] / totalRevenue) * 100).toFixed(1);
   
   document.getElementById('city-insights').innerHTML = `
@@ -904,6 +907,7 @@ function createChannelChart(city, product) {
       .style("font-size", "14px")
       .style("font-weight", "bold")
       .style("fill", colors.primary)
+      .text("Dominant Channel");
     
     const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
     const topQuantity = Math.round(topChannel[1].quantity);
@@ -940,15 +944,15 @@ function createChannelChart(city, product) {
   }
 }
 
-// FIXED Utility function for clean number formatting
+// FIXED Utility function for clean number formatting with one decimal
 function formatNumber(num) {
   // Clean the number first
-  const cleanNum = Math.round(Number(num));
+  const cleanNum = Number(num);
   
   if (cleanNum >= 1000000) {
     return (cleanNum / 1000000).toFixed(1) + 'M';
   } else if (cleanNum >= 1000) {
-    return (cleanNum / 1000).toFixed(0) + 'K';
+    return (cleanNum / 1000).toFixed(1) + 'K';
   }
-  return cleanNum.toLocaleString();
+  return cleanNum.toFixed(1);
 }
