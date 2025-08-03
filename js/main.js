@@ -9,6 +9,27 @@ d3.csv("data/restaurant.csv").then(data => {
   showScene1(data);
 });
 
+const tooltip = d3.select("body")
+  .append("div")
+  .style("position", "absolute")
+  .style("background", "#ffffff")
+  .style("border", "1px solid #ccc")
+  .style("padding", "8px")
+  .style("border-radius", "5px")
+  .style("box-shadow", "0px 2px 10px rgba(0,0,0,0.1)")
+  .style("pointer-events", "none")
+  .style("font-size", "13px")
+  .style("display", "none")
+  .on("mouseover", (event, d) => {
+  tooltip.style("display", "block")
+         .html(`Label: <strong>${d[0]}</strong><br>Value: <strong>${d[1].toFixed(2)}</strong>`)
+         .style("left", (event.pageX + 10) + "px")
+         .style("top", (event.pageY - 28) + "px");
+})
+.on("mouseout", () => tooltip.style("display", "none"));
+
+
+
 
 function showScene1(data) {
   d3.select("#vis").html(""); // Clear previous
@@ -30,6 +51,7 @@ function showScene1(data) {
     .attr("fill", "#3498db")
     .on("click", d => showScene2(data, d[0]));
 
+    
   svg.append("g").attr("transform", "translate(0,450)").call(d3.axisBottom(x));
   svg.append("g").attr("transform", "translate(50,0)").call(d3.axisLeft(y));
 
