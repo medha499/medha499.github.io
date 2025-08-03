@@ -1,4 +1,4 @@
-// Load and process data
+///ocess data
 d3.csv("data/restaurant.csv").then(data => {
   // Process the data with proper date parsing and cleaning
   data.forEach(d => {
@@ -57,7 +57,9 @@ const colors = {
   accent: '#3182ce',      // Bright blue
   success: '#38a169',     // Green
   warning: '#ed8936',     // Orange
-  purple: '#805ad5',      // Purple
+  purple: '#e2d2c3',
+
+  ///'#805ad5',      // Purple
   teal: '#319795',        // Teal
   light: '#f7fafc',       // Very light grey
   dark: '#1a202c'         // Very dark
@@ -873,40 +875,7 @@ function createChannelChart(city, product) {
     const annotationGroup = svg.append("g")
       .attr("class", "simple-annotation");
     
-    // Draw line to pie slice
-    const sliceCentroid = arc.centroid(topSlice);
-    annotationGroup.append("line")
-      .attr("x1", centerX + sliceCentroid[0] * 1.1)
-      .attr("y1", centerY + sliceCentroid[1] * 1.1)
-      .attr("x2", annotationX - 10)
-      .attr("y2", annotationY + 10)
-      .attr("stroke", colors.accent)
-      .attr("stroke-width", 2);
-    
-    annotationGroup.append("circle")
-      .attr("cx", centerX + sliceCentroid[0] * 1.1)
-      .attr("cy", centerY + sliceCentroid[1] * 1.1)
-      .attr("r", 4)
-      .attr("fill", colors.accent);
-    
-    annotationGroup.append("text")
-      .attr("x", annotationX)
-      .attr("y", annotationY)
-      .style("font-size", "14px")
-      .style("font-weight", "bold")
-      .style("fill", colors.primary)
-      .text("Dominant Channel");
-    
-    const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
-    const topQuantity = Math.round(topChannel[1].quantity);
-    const dominantPercentage = Math.round((topQuantity / totalQuantity) * 100);
-    
-    annotationGroup.append("text")
-      .attr("x", annotationX)
-      .attr("y", annotationY + 20)
-      .style("font-size", "13px")
-      .style("fill", colors.secondary)
-      .text(`${dominantPercentage}% customer preference`);
+
   }
 
   // Update insights with CLEAN numbers
