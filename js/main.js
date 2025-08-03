@@ -75,10 +75,8 @@ function updateBreadcrumb() {
   if (selectedCity) {
     breadcrumbText += '<span class="separator">→</span><span class="active">' + selectedCity + ' Products</span>';
   }
-  
-  if (selectedProduct) {
-    breadcrumbText += '<span class="separator">→</span><span class="active">' + selectedProduct + ' Channels</span>';
-  }
+
+
   
   breadcrumb.innerHTML = breadcrumbText;
   
@@ -426,8 +424,6 @@ function createCityChart() {
   document.getElementById('overview-insights').innerHTML = `
     <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
-    <p>• Focus expansion on top-performing cities for maximum ROI</p>
-    <p>• Consider market entry strategies for underperforming regions</p>
   `;
 }
 
@@ -608,7 +604,6 @@ function createProductChart(city) {
     note: {
       label: `${topMarketShare}% market share`,
       title: `Top Performer`,
-      wrap: 120,
       align: "left"
     },
     x: x(topProduct[1]) + 20,
@@ -909,7 +904,6 @@ function createChannelChart(city, product) {
       .style("font-size", "14px")
       .style("font-weight", "bold")
       .style("fill", colors.primary)
-      .text("Dominant Channel");
     
     const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
     const topQuantity = Math.round(topChannel[1].quantity);
@@ -942,8 +936,6 @@ function createChannelChart(city, product) {
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
       <p>• Total orders: <strong>${totalQuantity}</strong> for this product</p>
-      <p>• <strong>Strategy:</strong> ${recommendation}</p>
-      <p>• Consider channel-specific promotions to boost alternatives</p>
     `;
   }
 }
