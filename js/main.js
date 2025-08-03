@@ -1,32 +1,27 @@
-// Load and process data
 d3.csv("data/restaurant.csv").then(data => {
-  // Process the data with proper date parsing and cleaning
   data.forEach(d => {
     d.Price = +d.Price;
     d.Quantity = +d.Quantity;
     d.Revenue = d.Price * d.Quantity;
-    
-    // Handle DD-MM-YYYY format (European date format)
+
     if (d.Date) {
       const dateParts = d.Date.split('-');
       if (dateParts.length === 3) {
-        // Convert DD-MM-YYYY to MM/DD/YYYY for Date constructor
         d.OrderDate = new Date(`${dateParts[1]}/${dateParts[0]}/${dateParts[2]}`);
       }
     }
-    
-    // Clean up purchase type (remove extra spaces)
-    if (d.PurchaseType) {
-      d.PurchaseType = d.PurchaseType.trim();
+
+    // Clean fields
+    if (d["Purchase Type"]) {
+      // Extract just "Online" or "In-store" from values like "Online \t Gift Card"
+      d.PurchaseType = d["Purchase Type"].split(/\s{2,}|\t+/)[0].trim();
     }
-    
-    // Clean up other string fields
+
     if (d.City) d.City = d.City.trim();
     if (d.Product) d.Product = d.Product.trim();
     if (d.Manager) d.Manager = d.Manager.trim();
   });
 
-  // Initialize visualization with processed data
   initializeVisualization(data);
 }).catch(error => {
   console.error("Error loading data:", error);
@@ -37,6 +32,7 @@ d3.csv("data/restaurant.csv").then(data => {
     </div>
   `;
 });
+
 
 // Global variables for state management
 let globalData = [];
