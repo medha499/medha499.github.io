@@ -201,10 +201,10 @@ function goBack() {
 }
 
 function createCityChart() {
-  // Fixed margins with more space for labels
-  const margin = {top: 60, right: 60, bottom: 100, left: 140};
-  const width = 800 - margin.left - margin.right;
-  const height = 450 - margin.top - margin.bottom;
+  // MAJOR MARGIN INCREASE to prevent cutoffs
+  const margin = {top: 80, right: 80, bottom: 120, left: 180};
+  const width = 1000 - margin.left - margin.right;  // Increased total width
+  const height = 500 - margin.top - margin.bottom;  // Increased total height
 
   // Clear any existing tooltips and charts
   d3.selectAll(".tooltip").remove();
@@ -213,7 +213,8 @@ function createCityChart() {
   const svg = d3.select("#chart")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("height", height + margin.top + margin.bottom)
+    .style("background", "#fff");  // Ensure white background
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -227,10 +228,10 @@ function createCityChart() {
   const x = d3.scaleBand()
     .domain(grouped.map(d => d[0]))
     .range([0, width])
-    .padding(0.3);
+    .padding(0.4);  // More padding between bars
 
   const y = d3.scaleLinear()
-    .domain([0, d3.max(grouped, d => d[1]) * 1.2]) // More space at top
+    .domain([0, d3.max(grouped, d => d[1]) * 1.3]) // Extra space at top
     .range([height, 0]);
 
   // Create tooltip
@@ -263,7 +264,7 @@ function createCityChart() {
     .attr("y", height)
     .attr("height", 0)
     .attr("fill", "url(#barGradient)")
-    .attr("rx", 3)
+    .attr("rx", 4)
     .style("cursor", "pointer")
     .on("mouseover", function(event, d) {
       d3.select(this)
@@ -274,13 +275,13 @@ function createCityChart() {
       
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
-        <div style="font-weight: bold; margin-bottom: 5px;">${d[0]}</div>
-        <div>2022 Revenue: <strong>$${formatNumber(d[1])}</strong></div>
-        <div>2023 Projection: <strong>$${formatNumber(d[1] * 1.15)}</strong></div>
-        <div style="margin-top: 8px; font-style: italic; color: #718096;">Click to explore products</div>
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${d[0]}</div>
+        <div style="margin: 4px 0;">2022 Revenue: <strong>$${formatNumber(d[1])}</strong></div>
+        <div style="margin: 4px 0;">2023 Projection: <strong>$${formatNumber(d[1] * 1.15)}</strong></div>
+        <div style="margin-top: 10px; font-style: italic; color: #718096; font-size: 12px;">Click to explore products</div>
       `)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 70) + "px");
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 100) + "px");
     })
     .on("mouseout", function(d) {
       d3.select(this)
@@ -294,11 +295,11 @@ function createCityChart() {
     })
     .transition()
     .duration(1000)
-    .delay((d, i) => i * 100)
+    .delay((d, i) => i * 150)
     .attr("y", d => y(d[1]))
     .attr("height", d => height - y(d[1]));
 
-  // Add value labels on bars - FIXED positioning
+  // Add value labels INSIDE bars - much better positioning
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -306,60 +307,77 @@ function createCityChart() {
     .attr("x", d => x(d[0]) + x.bandwidth()/2)
     .attr("y", height)
     .attr("text-anchor", "middle")
-    .attr("font-size", "11px")
-    .attr("font-weight", "600")
+    .attr("font-size", "12px")
+    .attr("font-weight", "700")
     .attr("fill", "white")
+    .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.7)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
     .duration(1000)
-    .delay((d, i) => i * 100)
-    .attr("y", d => y(d[1]) + 15); // Position inside the bar, not above
+    .delay((d, i) => i * 150)
+    .attr("y", d => y(d[1]) + 20); // Position well inside the bar
 
-  // Add axes with improved formatting
+  // Create X-axis with NO rotation for better readability
   const xAxis = g.append("g")
-    .attr("class", "axis")
+    .attr("class", "x-axis")
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x));
 
-  // Style X-axis text
+  // Style X-axis text - NO ROTATION, larger font
   xAxis.selectAll("text")
-    .style("font-size", "12px")
-    .style("font-weight", "500")
+    .style("font-size", "14px")
+    .style("font-weight", "600")
     .style("fill", colors.primary)
-    .attr("transform", "rotate(-45)")
-    .style("text-anchor", "end")
-    .attr("dx", "-0.5em")
-    .attr("dy", "0.15em");
+    .style("text-anchor", "middle");
 
+  // Create Y-axis
   const yAxis = g.append("g")
-    .attr("class", "axis")
-    .call(d3.axisLeft(y).tickFormat(d => "$" + formatNumber(d)));
+    .attr("class", "y-axis")
+    .call(d3.axisLeft(y)
+      .tickFormat(d => "$" + formatNumber(d))
+      .ticks(6));
 
   // Style Y-axis text
   yAxis.selectAll("text")
-    .style("font-size", "12px")
+    .style("font-size", "13px")
     .style("font-weight", "500")
     .style("fill", colors.primary);
 
-  // Add axis labels - FIXED positioning
+  // Remove default axis lines and add custom styling
+  yAxis.select(".domain").remove();
+  xAxis.select(".domain").remove();
+  
+  // Add subtle grid lines
+  g.selectAll(".grid-line")
+    .data(y.ticks(6))
+    .enter().append("line")
+    .attr("class", "grid-line")
+    .attr("x1", 0)
+    .attr("x2", width)
+    .attr("y1", d => y(d))
+    .attr("y2", d => y(d))
+    .attr("stroke", "#f0f0f0")
+    .attr("stroke-width", 1);
+
+  // Add axis labels with MUCH better positioning
   g.append("text")
-    .attr("class", "axis-label")
+    .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 30)
+    .attr("y", -margin.left + 40)  // More space from edge
     .attr("x", -height / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "600")
+    .style("font-size", "16px")
+    .style("font-weight", "700")
     .style("fill", colors.primary)
     .text("Revenue (USD)");
 
   g.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 20})`)
+    .attr("class", "x-axis-label")
+    .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 30})`)
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "600")
+    .style("font-size", "16px")
+    .style("font-weight", "700")
     .style("fill", colors.primary)
     .text("City");
 
@@ -370,16 +388,17 @@ function createCityChart() {
     note: {
       label: `$${formatNumber(topCity[1])} revenue`,
       title: `${topCity[0]}: Market Leader`,
-      wrap: 150,
+      wrap: 160,
       align: "left"
     },
     x: x(topCity[0]) + x.bandwidth()/2,
     y: y(topCity[1]),
-    dy: -60,
-    dx: 40,
+    dy: -80,
+    dx: 60,
     type: d3.annotationCalloutElbow,
     subject: {
-      radius: 8
+      radius: 10,
+      radiusPadding: 5
     }
   }];
 
@@ -389,9 +408,19 @@ function createCityChart() {
 
   g.append("g")
     .attr("class", "annotation-group")
-    .style("font-size", "12px")
-    .style("font-weight", "500")
+    .style("font-size", "13px")
+    .style("font-weight", "600")
     .call(makeAnnotations);
+
+  // Style annotation elements
+  g.selectAll(".annotation-note-label")
+    .style("font-size", "12px")
+    .style("fill", colors.secondary);
+    
+  g.selectAll(".annotation-note-title")
+    .style("font-size", "14px")
+    .style("font-weight", "700")
+    .style("fill", colors.primary);
 
   // Update insights with real data
   document.getElementById('overview-insights').innerHTML = `
@@ -403,10 +432,10 @@ function createCityChart() {
 }
 
 function createProductChart(city) {
-  // Fixed margins for horizontal bar chart
-  const margin = {top: 60, right: 80, bottom: 80, left: 160};
-  const width = 800 - margin.left - margin.right;
-  const height = 450 - margin.top - margin.bottom;
+  // MAJOR MARGIN INCREASE for horizontal bars
+  const margin = {top: 80, right: 120, bottom: 100, left: 200};
+  const width = 1000 - margin.left - margin.right;
+  const height = 500 - margin.top - margin.bottom;
 
   // Clear any existing tooltips and charts
   d3.selectAll(".tooltip").remove();
@@ -415,7 +444,8 @@ function createProductChart(city) {
   const svg = d3.select("#chart")
     .append("svg")
     .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("height", height + margin.top + margin.bottom)
+    .style("background", "#fff");
 
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
@@ -428,18 +458,18 @@ function createProductChart(city) {
 
   // Horizontal bar chart scales
   const x = d3.scaleLinear()
-    .domain([0, d3.max(grouped, d => d[1]) * 1.1])
+    .domain([0, d3.max(grouped, d => d[1]) * 1.2])
     .range([0, width]);
 
   const y = d3.scaleBand()
     .domain(grouped.map(d => d[0]))
     .range([0, height])
-    .padding(0.3);
+    .padding(0.4);
 
   // Professional color scale
   const colorScale = d3.scaleOrdinal()
     .domain(grouped.map(d => d[0]))
-    .range([colors.accent, colors.success, colors.warning, colors.secondary, colors.tertiary]);
+    .range([colors.accent, colors.success, colors.warning, colors.secondary, colors.tertiary, colors.purple]);
 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
@@ -455,25 +485,25 @@ function createProductChart(city) {
     .attr("x", 0)
     .attr("width", 0)
     .attr("fill", d => colorScale(d[0]))
-    .attr("rx", 4)
+    .attr("rx", 5)
     .style("cursor", "pointer")
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition().duration(200)
         .attr("opacity", 0.8)
         .attr("stroke", colors.primary)
-        .attr("stroke-width", 2);
+        .attr("stroke-width", 3);
       
       const percentage = ((d[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1);
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
-        <div style="font-weight: bold; margin-bottom: 5px;">${d[0]}</div>
-        <div>Revenue: <strong>$${formatNumber(d[1])}</strong></div>
-        <div>Market Share: <strong>${percentage}%</strong></div>
-        <div style="margin-top: 8px; font-style: italic; color: #718096;">Click to see purchase channels</div>
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${d[0]}</div>
+        <div style="margin: 4px 0;">Revenue: <strong>$${formatNumber(d[1])}</strong></div>
+        <div style="margin: 4px 0;">Market Share: <strong>${percentage}%</strong></div>
+        <div style="margin-top: 10px; font-style: italic; color: #718096; font-size: 12px;">Click to see purchase channels</div>
       `)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 70) + "px");
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 100) + "px");
     })
     .on("mouseout", function(d) {
       d3.select(this)
@@ -487,71 +517,103 @@ function createProductChart(city) {
     })
     .transition()
     .duration(800)
-    .delay((d, i) => i * 100)
+    .delay((d, i) => i * 150)
     .attr("width", d => x(d[1]));
 
-  // Add value labels on bars - FIXED positioning
+  // Add value labels INSIDE bars with better positioning
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
     .attr("class", "bar-label")
     .attr("y", d => y(d[0]) + y.bandwidth()/2)
-    .attr("x", 8) // Start from inside the bar
+    .attr("x", 15) // Start well inside the bar
     .attr("dy", "0.35em")
-    .attr("font-size", "11px")
-    .attr("font-weight", "600")
+    .attr("font-size", "12px")
+    .attr("font-weight", "700")
     .attr("fill", "white")
-    .attr("text-anchor", "start") // Align to start, not end
+    .attr("text-anchor", "start")
+    .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.7)")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
     .duration(800)
-    .delay((d, i) => i * 100)
-    .attr("x", d => Math.max(8, x(d[1]) - 8)); // Position near end of bar
+    .delay((d, i) => i * 150)
+    .attr("x", d => Math.min(x(d[1]) - 15, x(d[1]) * 0.9)); // Position near end but inside
 
-  // Add axes with improved formatting
+  // Create axes with better formatting
   const xAxis = g.append("g")
-    .attr("class", "axis")
+    .attr("class", "x-axis")
     .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x).tickFormat(d => "$" + formatNumber(d)));
+    .call(d3.axisBottom(x)
+      .tickFormat(d => "$" + formatNumber(d))
+      .ticks(6));
 
   xAxis.selectAll("text")
-    .style("font-size", "12px")
+    .style("font-size", "13px")
     .style("font-weight", "500")
     .style("fill", colors.primary);
 
   const yAxis = g.append("g")
-    .attr("class", "axis")
+    .attr("class", "y-axis")
     .call(d3.axisLeft(y));
 
-  // Handle long product names - FIXED text wrapping
+  // Handle product names with proper wrapping - NO TRUNCATION
   yAxis.selectAll("text")
-    .style("font-size", "12px")
-    .style("font-weight", "500")
+    .style("font-size", "13px")
+    .style("font-weight", "600")
     .style("fill", colors.primary)
-    .text(function(d) {
-      // Truncate long product names
-      return d.length > 15 ? d.substring(0, 15) + "..." : d;
+    .style("text-anchor", "end")
+    .each(function(d) {
+      const text = d3.select(this);
+      const words = d.split(/\s+/);
+      if (words.length > 2) {
+        // For long product names, wrap to 2 lines
+        text.text('');
+        text.append("tspan")
+          .attr("x", -10)
+          .attr("dy", "-0.3em")
+          .text(words.slice(0, 2).join(' '));
+        text.append("tspan")
+          .attr("x", -10)
+          .attr("dy", "1.1em")
+          .text(words.slice(2).join(' '));
+      }
     });
 
-  // Add axis labels - FIXED positioning
+  // Remove default axis lines
+  yAxis.select(".domain").remove();
+  xAxis.select(".domain").remove();
+
+  // Add subtle grid lines
+  g.selectAll(".grid-line")
+    .data(x.ticks(6))
+    .enter().append("line")
+    .attr("class", "grid-line")
+    .attr("x1", d => x(d))
+    .attr("x2", d => x(d))
+    .attr("y1", 0)
+    .attr("y2", height)
+    .attr("stroke", "#f0f0f0")
+    .attr("stroke-width", 1);
+
+  // Add axis labels with perfect positioning
   g.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 20})`)
+    .attr("class", "x-axis-label")
+    .attr("transform", `translate(${width / 2}, ${height + margin.bottom - 30})`)
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "600")
+    .style("font-size", "16px")
+    .style("font-weight", "700")
     .style("fill", colors.primary)
     .text("Revenue (USD)");
 
   g.append("text")
-    .attr("class", "axis-label")
+    .attr("class", "y-axis-label")
     .attr("transform", "rotate(-90)")
-    .attr("y", -margin.left + 30)
+    .attr("y", -margin.left + 40)
     .attr("x", -height / 2)
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "600")
+    .style("font-size", "16px")
+    .style("font-weight", "700")
     .style("fill", colors.primary)
     .text("Product Category");
 
@@ -562,16 +624,17 @@ function createProductChart(city) {
     note: {
       label: `${((topProduct[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1)}% market share`,
       title: `${topProduct[0]}: Category Leader`,
-      wrap: 150,
+      wrap: 160,
       align: "left"
     },
     x: x(topProduct[1]),
     y: y(topProduct[0]) + y.bandwidth()/2,
-    dy: -20,
-    dx: -80,
+    dy: -30,
+    dx: -120,
     type: d3.annotationCalloutElbow,
     subject: {
-      radius: 6
+      radius: 8,
+      radiusPadding: 5
     }
   }];
 
@@ -580,9 +643,19 @@ function createProductChart(city) {
 
   g.append("g")
     .attr("class", "annotation-group")
-    .style("font-size", "12px")
-    .style("font-weight", "500")
+    .style("font-size", "13px")
+    .style("font-weight", "600")
     .call(makeAnnotations);
+
+  // Style annotation elements
+  g.selectAll(".annotation-note-label")
+    .style("font-size", "12px")
+    .style("fill", colors.secondary);
+    
+  g.selectAll(".annotation-note-title")
+    .style("font-size", "14px")
+    .style("font-weight", "700")
+    .style("fill", colors.primary);
 
   // Update insights
   const totalRevenue = d3.sum(grouped, d => d[1]);
@@ -597,10 +670,10 @@ function createProductChart(city) {
 }
 
 function createChannelChart(city, product) {
-  // Fixed dimensions for better layout
-  const containerWidth = 800;
-  const containerHeight = 450;
-  const radius = Math.min(containerWidth * 0.6, containerHeight * 0.6) / 2;
+  // Fixed dimensions for better layout with more space
+  const containerWidth = 1000;
+  const containerHeight = 500;
+  const radius = Math.min(containerWidth * 0.35, containerHeight * 0.7) / 2;
   const centerX = containerWidth * 0.4;
   const centerY = containerHeight / 2;
 
@@ -611,24 +684,33 @@ function createChannelChart(city, product) {
   const svg = d3.select("#chart")
     .append("svg")
     .attr("width", containerWidth)
-    .attr("height", containerHeight);
+    .attr("height", containerHeight)
+    .style("background", "#fff");
 
   const g = svg.append("g")
     .attr("transform", `translate(${centerX},${centerY})`);
 
-  // Filter data and debug
+  // Filter data
   const filtered = globalData.filter(d => d.City === city && d.Product === product);
 
   if (filtered.length === 0) {
-    // Show error message - FIXED positioning
+    // Show error message with better positioning
     g.append("text")
       .attr("x", 0)
-      .attr("y", -10)
+      .attr("y", -20)
       .attr("text-anchor", "middle")
-      .attr("font-size", "18px")
-      .attr("font-weight", "600")
+      .attr("font-size", "20px")
+      .attr("font-weight", "700")
       .attr("fill", colors.primary)
-      .text(`No data available for ${product} in ${city}`);
+      .text(`No data available for ${product}`);
+    
+    g.append("text")
+      .attr("x", 0)
+      .attr("y", 10)
+      .attr("text-anchor", "middle")
+      .attr("font-size", "16px")
+      .attr("fill", colors.secondary)
+      .text(`in ${city}`);
     
     document.getElementById('channel-insights').innerHTML = `
       <p style="color: ${colors.warning};">⚠️ No purchase channel data found for this combination</p>
@@ -654,21 +736,21 @@ function createChannelChart(city, product) {
   }).sort((a, b) => b[1].quantity - a[1].quantity);
 
   if (validGrouped.length === 0) {
-    // Show message if no valid purchase type data - FIXED positioning
+    // Show message if no valid purchase type data
     g.append("text")
       .attr("x", 0)
-      .attr("y", -10)
+      .attr("y", -20)
       .attr("text-anchor", "middle")
-      .attr("font-size", "16px")
-      .attr("font-weight", "600")
+      .attr("font-size", "18px")
+      .attr("font-weight", "700")
       .attr("fill", colors.primary)
       .text(`Purchase channel data not available`);
     
     g.append("text")
       .attr("x", 0)
-      .attr("y", 20)
+      .attr("y", 10)
       .attr("text-anchor", "middle")
-      .attr("font-size", "14px")
+      .attr("font-size", "15px")
       .attr("fill", colors.secondary)
       .text(`for ${product} in ${city}`);
     
@@ -694,7 +776,8 @@ function createChannelChart(city, product) {
     'In-store': colors.success,
     'Delivery': colors.warning,
     'Takeout': colors.secondary,
-    'Drive-thru': colors.tertiary
+    'Drive-thru': colors.tertiary,
+    'Phone': colors.purple
   };
 
   const tooltip = d3.select("body").append("div")
@@ -711,12 +794,12 @@ function createChannelChart(city, product) {
     .attr("d", arc)
     .attr("fill", d => colorMap[d.data[0]] || colors.tertiary)
     .attr("stroke", "white")
-    .attr("stroke-width", 3)
+    .attr("stroke-width", 4)
     .style("cursor", "pointer")
     .on("mouseover", function(event, d) {
       d3.select(this).transition().duration(200).attr("d", d3.arc()
         .innerRadius(0)
-        .outerRadius(radius + 8));
+        .outerRadius(radius + 12));
       
       const total = d3.sum(validGrouped, d => d[1].quantity);
       const percentage = ((d.data[1].quantity / total) * 100).toFixed(1);
@@ -724,20 +807,20 @@ function createChannelChart(city, product) {
       
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
-        <div style="font-weight: bold; margin-bottom: 5px;">${d.data[0]}</div>
-        <div>Orders: <strong>${d.data[1].quantity}</strong> (${percentage}%)</div>
-        <div>Revenue: <strong>$${formatNumber(d.data[1].revenue)}</strong></div>
-        <div>Avg per Order: <strong>$${avgOrder}</strong></div>
+        <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${d.data[0]}</div>
+        <div style="margin: 4px 0;">Orders: <strong>${d.data[1].quantity}</strong> (${percentage}%)</div>
+        <div style="margin: 4px 0;">Revenue: <strong>$${formatNumber(d.data[1].revenue)}</strong></div>
+        <div style="margin: 4px 0;">Avg per Order: <strong>$${avgOrder}</strong></div>
       `)
-      .style("left", (event.pageX + 10) + "px")
-      .style("top", (event.pageY - 80) + "px");
+      .style("left", (event.pageX + 15) + "px")
+      .style("top", (event.pageY - 100) + "px");
     })
     .on("mouseout", function(d) {
       d3.select(this).transition().duration(200).attr("d", arc);
       tooltip.transition().duration(300).style("opacity", 0);
     });
 
-  // Add percentage labels on slices - IMPROVED positioning
+  // Add percentage labels on slices with better visibility
   slices.append("text")
     .attr("transform", d => {
       const centroid = arc.centroid(d);
@@ -745,53 +828,60 @@ function createChannelChart(city, product) {
     })
     .attr("dy", "0.35em")
     .attr("text-anchor", "middle")
-    .style("font-size", "12px")
+    .style("font-size", "14px")
     .style("font-weight", "bold")
     .style("fill", "white")
-    .style("text-shadow", "1px 1px 2px rgba(0,0,0,0.5)")
+    .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.7)")
     .text(d => {
       const total = d3.sum(validGrouped, d => d[1].quantity);
       const percentage = ((d.data[1].quantity / total) * 100).toFixed(0);
-      return percentage > 8 ? percentage + "%" : "";
+      return percentage > 5 ? percentage + "%" : "";
     });
 
-  // Add center label - FIXED positioning
+  // Add center labels with better positioning
   g.append("text")
     .attr("text-anchor", "middle")
-    .attr("font-size", "16px")
+    .attr("font-size", "18px")
     .attr("font-weight", "bold")
     .attr("fill", colors.primary)
-    .attr("y", -8)
+    .attr("y", -12)
     .text(`${product}`);
 
   g.append("text")
     .attr("text-anchor", "middle")
-    .attr("y", 12)
-    .attr("font-size", "13px")
+    .attr("y", 8)
+    .attr("font-size", "15px")
     .attr("fill", colors.secondary)
-    .text(`Purchase Channels in ${city}`);
+    .text(`Purchase Channels`);
 
-  // Add legend - FIXED positioning and layout
+  g.append("text")
+    .attr("text-anchor", "middle")
+    .attr("y", 28)
+    .attr("font-size", "14px")
+    .attr("fill", colors.secondary)
+    .text(`in ${city}`);
+
+  // Add legend with much better positioning and layout
   const legend = svg.append("g")
     .attr("class", "legend")
-    .attr("transform", `translate(${containerWidth - 180}, 50)`);
+    .attr("transform", `translate(${containerWidth - 220}, 80)`);
 
   validGrouped.forEach((d, i) => {
     const legendRow = legend.append("g")
-      .attr("transform", `translate(0, ${i * 30})`);
+      .attr("transform", `translate(0, ${i * 40})`);
 
     legendRow.append("circle")
-      .attr("cx", 10)
-      .attr("cy", 10)
-      .attr("r", 8)
+      .attr("cx", 12)
+      .attr("cy", 12)
+      .attr("r", 10)
       .attr("fill", colorMap[d[0]] || colors.tertiary);
 
     legendRow.append("text")
-      .attr("x", 25)
-      .attr("y", 10)
+      .attr("x", 30)
+      .attr("y", 12)
       .attr("dy", "0.35em")
-      .style("font-size", "13px")
-      .style("font-weight", "500")
+      .style("font-size", "14px")
+      .style("font-weight", "600")
       .style("fill", colors.primary)
       .text(d[0]);
 
@@ -799,33 +889,34 @@ function createChannelChart(city, product) {
     const percentage = ((d[1].quantity / total) * 100).toFixed(1);
     
     legendRow.append("text")
-      .attr("x", 25)
-      .attr("y", 25)
+      .attr("x", 30)
+      .attr("y", 28)
       .attr("dy", "0.35em")
-      .style("font-size", "11px")
+      .style("font-size", "12px")
       .style("fill", colors.secondary)
       .text(`${d[1].quantity} orders (${percentage}%)`);
   });
 
-  // Add professional annotation for dominant channel - FIXED positioning
+  // Add professional annotation for dominant channel
   if (validGrouped.length > 0) {
     const topChannel = validGrouped[0];
     const topSlice = pie(validGrouped).find(d => d.data[0] === topChannel[0]);
     
     const annotations = [{
       note: {
-        label: `${((topChannel[1].quantity / d3.sum(validGrouped, d => d[1].quantity)) * 100).toFixed(0)}% preference`,
+        label: `${((topChannel[1].quantity / d3.sum(validGrouped, d => d[1].quantity)) * 100).toFixed(0)}% customer preference`,
         title: `${topChannel[0]}: Dominant Channel`,
-        wrap: 120,
+        wrap: 140,
         align: "left"
       },
-      x: centerX + arc.centroid(topSlice)[0] * 1.2,
-      y: centerY + arc.centroid(topSlice)[1] * 1.2,
-      dy: -30,
-      dx: 40,
+      x: centerX + arc.centroid(topSlice)[0] * 1.4,
+      y: centerY + arc.centroid(topSlice)[1] * 1.4,
+      dy: -40,
+      dx: 60,
       type: d3.annotationCalloutElbow,
       subject: {
-        radius: 8
+        radius: 10,
+        radiusPadding: 5
       }
     }];
 
@@ -834,9 +925,19 @@ function createChannelChart(city, product) {
 
     svg.append("g")
       .attr("class", "annotation-group")
-      .style("font-size", "12px")
-      .style("font-weight", "500")
+      .style("font-size", "13px")
+      .style("font-weight", "600")
       .call(makeAnnotations);
+
+    // Style annotation elements
+    svg.selectAll(".annotation-note-label")
+      .style("font-size", "12px")
+      .style("fill", colors.secondary);
+      
+    svg.selectAll(".annotation-note-title")
+      .style("font-size", "14px")
+      .style("font-weight", "700")
+      .style("fill", colors.primary);
   }
 
   // Update insights
