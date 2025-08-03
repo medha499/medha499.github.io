@@ -106,8 +106,8 @@ function showOverview() {
           </div>
         </div>
         <div style="flex: 1; min-width: 280px;">
-          <div class="insights-box">
-            <h4>💡 Key Insights</h4>
+          <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">💡 Key Insights</h4>
             <div id="overview-insights">
               <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
               <p>• Focus expansion on top-performing cities</p>
@@ -143,8 +143,8 @@ function showCityProducts(city) {
           </div>
         </div>
         <div style="flex: 1; min-width: 280px;">
-          <div class="insights-box">
-            <h4>📊 Market Analysis</h4>
+          <div style="padding: 20px; background: white; border: 2px solid #e2e8f0; border-radius: 8px;">
+            <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">📊 Market Analysis</h4>
             <div id="city-insights"></div>
           </div>
         </div>
