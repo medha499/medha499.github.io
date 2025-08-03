@@ -49,14 +49,16 @@ let selectedCity = null;
 let selectedProduct = null;
 let navigationStack = [];
 
-// Professional color scheme
+// Professional color scheme - neutral and production-ready
 const colors = {
-  primary: '#2c3e50',
-  secondary: '#3498db', 
-  tertiary: '#27ae60',
-  accent: '#e74c3c',
-  light: '#ecf0f1',
-  dark: '#34495e'
+  primary: '#2d3748',     // Dark slate
+  secondary: '#4a5568',   // Medium slate  
+  tertiary: '#718096',    // Light slate
+  accent: '#3182ce',      // Professional blue
+  success: '#38a169',     // Subdued green
+  warning: '#d69e2e',     // Muted orange
+  light: '#f7fafc',       // Very light grey
+  dark: '#1a202c'         // Very dark slate
 };
 
 function initializeVisualization(data) {
@@ -95,15 +97,21 @@ function showOverview() {
       <p class="scene-description">
         Total revenue across European markets for 2022. Click any bar to explore product performance in that city.
       </p>
-      <div class="chart-container">
-        <div id="chart"></div>
-      </div>
-      <div class="insights-box">
-        <h4>💡 Key Insights</h4>
-        <div id="overview-insights">
-          <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
-          <p>• Focus expansion on top-performing cities</p>
-          <p>• Consider operational improvements in underperforming markets</p>
+      <div style="display: flex; gap: 30px; margin-top: 20px;">
+        <div style="flex: 2;">
+          <div class="chart-container">
+            <div id="chart"></div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div class="insights-box">
+            <h4>💡 Key Insights</h4>
+            <div id="overview-insights">
+              <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
+              <p>• Focus expansion on top-performing cities</p>
+              <p>• Consider operational improvements in underperforming markets</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -126,12 +134,18 @@ function showCityProducts(city) {
       <p class="scene-description">
         Revenue breakdown by product category in ${city}. Click any bar to see customer purchase preferences.
       </p>
-      <div class="chart-container">
-        <div id="chart"></div>
-      </div>
-      <div class="insights-box">
-        <h4>📊 Market Analysis</h4>
-        <div id="city-insights"></div>
+      <div style="display: flex; gap: 30px; margin-top: 20px;">
+        <div style="flex: 2;">
+          <div class="chart-container">
+            <div id="chart"></div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div class="insights-box">
+            <h4>📊 Market Analysis</h4>
+            <div id="city-insights"></div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -150,14 +164,20 @@ function showProductDetails(city, product) {
     <div class="scene-content">
       <h2 class="scene-title">${product} Purchase Channels in ${city}</h2>
       <p class="scene-description">
-        How customers prefer to purchase ${product} in ${city} - Online vs In-store preferences.
+        How customers prefer to purchase ${product} in ${city} - Online vs In-store preferences for strategic planning.
       </p>
-      <div class="chart-container">
-        <div id="chart"></div>
-      </div>
-      <div class="insights-box">
-        <h4>🎯 Strategic Recommendations</h4>
-        <div id="channel-insights"></div>
+      <div style="display: flex; gap: 30px; margin-top: 20px;">
+        <div style="flex: 2;">
+          <div class="chart-container">
+            <div id="chart"></div>
+          </div>
+        </div>
+        <div style="flex: 1;">
+          <div class="insights-box">
+            <h4>🎯 Strategic Recommendations</h4>
+            <div id="channel-insights"></div>
+          </div>
+        </div>
       </div>
     </div>
   `;
@@ -180,9 +200,11 @@ function goBack() {
 
 function createCityChart() {
   const margin = {top: 40, right: 40, bottom: 80, left: 100};
-  const width = 1200 - margin.left - margin.right;
+  const width = 900 - margin.left - margin.right;  // Reduced width for side layout
   const height = 450 - margin.bottom - margin.top;
 
+  // Clear any existing tooltips and charts
+  d3.selectAll(".tooltip").remove();
   d3.select("#chart").selectAll("*").remove();
 
   const svg = d3.select("#chart")
@@ -193,11 +215,11 @@ function createCityChart() {
   const g = svg.append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  // Process data
+  // Process data - keep original order from data, don't sort
   const grouped = d3.rollups(globalData, 
     v => d3.sum(v, d => d.Revenue), 
     d => d.City
-  ).sort((a, b) => b[1] - a[1]); // Sort by revenue descending
+  );
 
   const x = d3.scaleBand()
     .domain(grouped.map(d => d[0]))
@@ -213,7 +235,7 @@ function createCityChart() {
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-  // Create bars with gradient
+  // Create bars with professional gradient
   const defs = svg.append("defs");
   const gradient = defs.append("linearGradient")
     .attr("id", "barGradient")
@@ -223,11 +245,11 @@ function createCityChart() {
   
   gradient.append("stop")
     .attr("offset", "0%")
-    .attr("stop-color", colors.secondary);
+    .attr("stop-color", colors.tertiary);
   
   gradient.append("stop")
     .attr("offset", "100%")
-    .attr("stop-color", colors.primary);
+    .attr("stop-color", colors.accent);
 
   g.selectAll(".bar")
     .data(grouped)
@@ -238,21 +260,21 @@ function createCityChart() {
     .attr("y", height)
     .attr("height", 0)
     .attr("fill", "url(#barGradient)")
-    .attr("rx", 4)
+    .attr("rx", 3)
     .style("cursor", "pointer")
     .on("mouseover", function(event, d) {
       d3.select(this)
         .transition().duration(200)
         .attr("opacity", 0.8)
-        .attr("stroke", colors.accent)
+        .attr("stroke", colors.primary)
         .attr("stroke-width", 2);
       
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
         <div style="font-weight: bold; margin-bottom: 5px;">${d[0]}</div>
-        <div>2022 Revenue: <strong>$${formatNumber(d[1])}</strong></div>
-        <div>2023 Projection: <strong>$${formatNumber(d[1] * 1.15)}</strong></div>
-        <div style="margin-top: 8px; font-style: italic; color: #7f8c8d;">Click to explore products</div>
+        <div>2022 Revenue: <strong>${formatNumber(d[1])}</strong></div>
+        <div>2023 Projection: <strong>${formatNumber(d[1] * 1.15)}</strong></div>
+        <div style="margin-top: 8px; font-style: italic; color: #718096;">Click to explore products</div>
       `)
       .style("left", (event.pageX + 10) + "px")
       .style("top", (event.pageY - 70) + "px");
@@ -281,8 +303,8 @@ function createCityChart() {
     .attr("x", d => x(d[0]) + x.bandwidth()/2)
     .attr("y", height)
     .attr("text-anchor", "middle")
-    .attr("font-size", "12px")
-    .attr("font-weight", "bold")
+    .attr("font-size", "11px")
+    .attr("font-weight", "600")
     .attr("fill", "white")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
@@ -296,12 +318,15 @@ function createCityChart() {
     .attr("transform", `translate(0,${height})`)
     .call(d3.axisBottom(x))
     .selectAll("text")
-    .style("font-size", "13px")
-    .style("font-weight", "500");
+    .style("font-size", "12px")
+    .style("font-weight", "500")
+    .style("fill", colors.primary);
 
   g.append("g")
     .attr("class", "axis")
-    .call(d3.axisLeft(y).tickFormat(d => "$" + formatNumber(d)));
+    .call(d3.axisLeft(y).tickFormat(d => "$" + formatNumber(d)))
+    .selectAll("text")
+    .style("fill", colors.primary);
 
   // Add axis labels
   g.append("text")
@@ -311,34 +336,66 @@ function createCityChart() {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "13px")
     .style("font-weight", "500")
-    .style("fill", colors.dark)
+    .style("fill", colors.primary)
     .text("Revenue (USD)");
 
   g.append("text")
     .attr("class", "axis-label")
     .attr("transform", `translate(${width / 2}, ${height + 60})`)
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "13px")
     .style("font-weight", "500")
-    .style("fill", colors.dark)
+    .style("fill", colors.primary)
     .text("City");
 
-  // Update insights
-  const topCity = grouped[0];
+  // Add professional annotation for top performer
+  const topCity = grouped.reduce((a, b) => a[1] > b[1] ? a : b);
+  
+  const annotations = [{
+    note: {
+      label: `${formatNumber(topCity[1])} revenue`,
+      title: `${topCity[0]}: Market Leader`,
+      wrap: 150,
+      align: "left"
+    },
+    x: x(topCity[0]) + x.bandwidth()/2,
+    y: y(topCity[1]),
+    dy: -40,
+    dx: 30,
+    type: d3.annotationCalloutElbow,
+    subject: {
+      radius: 8
+    }
+  }];
+
+  const makeAnnotations = d3.annotation()
+    .type(d3.annotationCalloutElbow)
+    .annotations(annotations);
+
+  g.append("g")
+    .attr("class", "annotation-group")
+    .style("font-size", "12px")
+    .style("font-weight", "500")
+    .call(makeAnnotations);
+
+  // Update insights with real data
   document.getElementById('overview-insights').innerHTML = `
-    <p>• <strong>${topCity[0]}</strong> leads with $${formatNumber(topCity[1])} revenue</p>
+    <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
     <p>• Focus expansion on top-performing cities for maximum ROI</p>
+    <p>• Consider market entry strategies for underperforming regions</p>
   `;
 }
 
 function createProductChart(city) {
-  const margin = {top: 40, right: 40, bottom: 80, left: 100};
-  const width = 1200 - margin.left - margin.right;
+  const margin = {top: 40, right: 40, bottom: 60, left: 120}; // More left margin for product names
+  const width = 900 - margin.left - margin.right;
   const height = 450 - margin.bottom - margin.top;
 
+  // Clear any existing tooltips and charts
+  d3.selectAll(".tooltip").remove();
   d3.select("#chart").selectAll("*").remove();
 
   const svg = d3.select("#chart")
@@ -355,31 +412,34 @@ function createProductChart(city) {
     d => d.Product
   ).sort((a, b) => b[1] - a[1]); // Sort by revenue descending
 
-  const x = d3.scaleBand()
+  // Horizontal bar chart scales
+  const x = d3.scaleLinear()
+    .domain([0, d3.max(grouped, d => d[1]) * 1.1])
+    .range([0, width]);
+
+  const y = d3.scaleBand()
     .domain(grouped.map(d => d[0]))
-    .range([0, width])
+    .range([0, height])
     .padding(0.3);
 
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(grouped, d => d[1]) * 1.1])
-    .range([height, 0]);
-
+  // Professional color scale
   const colorScale = d3.scaleOrdinal()
     .domain(grouped.map(d => d[0]))
-    .range([colors.tertiary, colors.secondary, colors.accent, '#9b59b6', '#1abc9c']);
+    .range([colors.accent, colors.success, colors.warning, colors.secondary, colors.tertiary]);
 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+  // Create horizontal bars
   g.selectAll(".bar")
     .data(grouped)
     .enter().append("rect")
     .attr("class", "bar")
-    .attr("x", d => x(d[0]))
-    .attr("width", x.bandwidth())
-    .attr("y", height)
-    .attr("height", 0)
+    .attr("y", d => y(d[0]))
+    .attr("height", y.bandwidth())
+    .attr("x", 0)
+    .attr("width", 0)
     .attr("fill", d => colorScale(d[0]))
     .attr("rx", 4)
     .style("cursor", "pointer")
@@ -387,16 +447,16 @@ function createProductChart(city) {
       d3.select(this)
         .transition().duration(200)
         .attr("opacity", 0.8)
-        .attr("stroke", colors.dark)
+        .attr("stroke", colors.primary)
         .attr("stroke-width", 2);
       
       const percentage = ((d[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1);
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
         <div style="font-weight: bold; margin-bottom: 5px;">${d[0]}</div>
-        <div>Revenue: <strong>$${formatNumber(d[1])}</strong></div>
+        <div>Revenue: <strong>${formatNumber(d[1])}</strong></div>
         <div>Market Share: <strong>${percentage}%</strong></div>
-        <div style="margin-top: 8px; font-style: italic; color: #7f8c8d;">Click to see purchase channels</div>
+        <div style="margin-top: 8px; font-style: italic; color: #718096;">Click to see purchase channels</div>
       `)
       .style("left", (event.pageX + 10) + "px")
       .style("top", (event.pageY - 70) + "px");
@@ -414,40 +474,53 @@ function createProductChart(city) {
     .transition()
     .duration(800)
     .delay((d, i) => i * 100)
-    .attr("y", d => y(d[1]))
-    .attr("height", d => height - y(d[1]));
+    .attr("width", d => x(d[1]));
 
   // Add value labels on bars
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
     .attr("class", "bar-label")
-    .attr("x", d => x(d[0]) + x.bandwidth()/2)
-    .attr("y", height)
-    .attr("text-anchor", "middle")
+    .attr("y", d => y(d[0]) + y.bandwidth()/2)
+    .attr("x", 5)
+    .attr("dy", "0.35em")
     .attr("font-size", "11px")
-    .attr("font-weight", "bold")
+    .attr("font-weight", "600")
     .attr("fill", "white")
     .text(d => "$" + formatNumber(d[1]))
     .transition()
     .duration(800)
     .delay((d, i) => i * 100)
-    .attr("y", d => y(d[1]) - 8);
+    .attr("x", d => x(d[1]) - 10)
+    .attr("text-anchor", "end");
 
   // Add axes
   g.append("g")
     .attr("class", "axis")
     .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x))
+    .call(d3.axisBottom(x).tickFormat(d => "$" + formatNumber(d)))
     .selectAll("text")
-    .style("font-size", "12px")
-    .style("font-weight", "500");
+    .style("font-size", "11px")
+    .style("fill", colors.primary);
 
   g.append("g")
     .attr("class", "axis")
-    .call(d3.axisLeft(y).tickFormat(d => "$" + formatNumber(d)));
+    .call(d3.axisLeft(y))
+    .selectAll("text")
+    .style("font-size", "12px")
+    .style("font-weight", "500")
+    .style("fill", colors.primary);
 
   // Add axis labels
+  g.append("text")
+    .attr("class", "axis-label")
+    .attr("transform", `translate(${width / 2}, ${height + 50})`)
+    .style("text-anchor", "middle")
+    .style("font-size", "13px")
+    .style("font-weight", "500")
+    .style("fill", colors.primary)
+    .text("Revenue (USD)");
+
   g.append("text")
     .attr("class", "axis-label")
     .attr("transform", "rotate(-90)")
@@ -455,46 +528,68 @@ function createProductChart(city) {
     .attr("x", 0 - (height / 2))
     .attr("dy", "1em")
     .style("text-anchor", "middle")
-    .style("font-size", "14px")
+    .style("font-size", "13px")
     .style("font-weight", "500")
-    .style("fill", colors.dark)
-    .text("Revenue (USD)");
-
-  g.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", `translate(${width / 2}, ${height + 60})`)
-    .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "500")
-    .style("fill", colors.dark)
+    .style("fill", colors.primary)
     .text("Product Category");
 
-  // Update insights
+  // Add professional annotation for top product
   const topProduct = grouped[0];
+  
+  const annotations = [{
+    note: {
+      label: `${((topProduct[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1)}% market share`,
+      title: `${topProduct[0]}: Category Leader`,
+      wrap: 150,
+      align: "left"
+    },
+    x: x(topProduct[1]),
+    y: y(topProduct[0]) + y.bandwidth()/2,
+    dy: -10,
+    dx: -50,
+    type: d3.annotationCalloutElbow,
+    subject: {
+      radius: 6
+    }
+  }];
+
+  const makeAnnotations = d3.annotation()
+    .annotations(annotations);
+
+  g.append("g")
+    .attr("class", "annotation-group")
+    .style("font-size", "12px")
+    .style("font-weight", "500")
+    .call(makeAnnotations);
+
+  // Update insights
   const totalRevenue = d3.sum(grouped, d => d[1]);
   const topShare = ((topProduct[1] / totalRevenue) * 100).toFixed(1);
   
   document.getElementById('city-insights').innerHTML = `
     <p>• <strong>${topProduct[0]}</strong> dominates with ${topShare}% market share</p>
-    <p>• Total ${city} revenue: <strong>$${formatNumber(totalRevenue)}</strong></p>
+    <p>• Total ${city} revenue: <strong>${formatNumber(totalRevenue)}</strong></p>
     <p>• ${grouped.length} product categories active in this market</p>
+    <p>• Focus marketing efforts on top-performing categories for 2023</p>
   `;
 }
 
 function createChannelChart(city, product) {
-  const margin = {top: 40, right: 40, bottom: 80, left: 100};
-  const width = 1200 - margin.left - margin.right;
-  const height = 450 - margin.bottom - margin.top;
+  const width = 900;
+  const height = 450;
+  const radius = Math.min(width, height) / 2 - 40;
 
+  // Clear any existing tooltips and charts
+  d3.selectAll(".tooltip").remove();
   d3.select("#chart").selectAll("*").remove();
 
   const svg = d3.select("#chart")
     .append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom);
+    .attr("width", width)
+    .attr("height", height);
 
   const g = svg.append("g")
-    .attr("transform", `translate(${margin.left},${margin.top})`);
+    .attr("transform", `translate(${width / 2},${height / 2})`);
 
   // Filter data and debug
   const filtered = globalData.filter(d => d.City === city && d.Product === product);
@@ -504,20 +599,20 @@ function createChannelChart(city, product) {
   if (filtered.length === 0) {
     // Show error message
     g.append("text")
-      .attr("x", width / 2)
-      .attr("y", height / 2)
+      .attr("x", 0)
+      .attr("y", 0)
       .attr("text-anchor", "middle")
       .attr("font-size", "18px")
-      .attr("fill", colors.dark)
+      .attr("fill", colors.primary)
       .text(`No data available for ${product} in ${city}`);
     
     document.getElementById('channel-insights').innerHTML = `
-      <p style="color: #e74c3c;">⚠️ No purchase channel data found for this combination</p>
+      <p style="color: ${colors.warning};">⚠️ No purchase channel data found for this combination</p>
     `;
     return;
   }
 
-  // Process purchase type data more robustly
+  // Process purchase type data
   const grouped = d3.rollups(filtered, 
     v => ({
       quantity: d3.sum(v, d => d.Quantity),
@@ -541,188 +636,201 @@ function createChannelChart(city, product) {
   if (validGrouped.length === 0) {
     // Show message if no valid purchase type data
     g.append("text")
-      .attr("x", width / 2)
-      .attr("y", height / 2 - 20)
+      .attr("x", 0)
+      .attr("y", -10)
       .attr("text-anchor", "middle")
       .attr("font-size", "18px")
-      .attr("fill", colors.dark)
+      .attr("fill", colors.primary)
       .text(`Purchase channel data not available`);
     
     g.append("text")
-      .attr("x", width / 2)
-      .attr("y", height / 2 + 10)
+      .attr("x", 0)
+      .attr("y", 20)
       .attr("text-anchor", "middle")
       .attr("font-size", "14px")
-      .attr("fill", colors.dark)
+      .attr("fill", colors.secondary)
       .text(`for ${product} in ${city}`);
     
     document.getElementById('channel-insights').innerHTML = `
-      <p style="color: #e74c3c;">⚠️ Purchase type data needs to be properly formatted in the CSV</p>
+      <p style="color: ${colors.warning};">⚠️ Purchase type data needs to be properly formatted in the CSV</p>
       <p>Available data: ${filtered.length} orders found, but purchase types are not properly categorized</p>
     `;
     return;
   }
 
-  // Create scales
-  const x = d3.scaleBand()
-    .domain(validGrouped.map(d => d[0]))
-    .range([0, width])
-    .padding(0.4);
+  // Create pie chart
+  const pie = d3.pie()
+    .value(d => d[1].quantity)
+    .sort(null);
 
-  const y = d3.scaleLinear()
-    .domain([0, d3.max(validGrouped, d => d[1].quantity) * 1.1])
-    .range([height, 0]);
+  const arc = d3.arc()
+    .innerRadius(0)
+    .outerRadius(radius);
 
-  // Color mapping for known purchase types
+  // Professional color mapping
   const colorMap = {
-    'Online': colors.secondary,
-    'In-store': colors.tertiary,
-    'Delivery': colors.accent,
-    'Takeout': '#9b59b6',
-    'Drive-thru': '#1abc9c'
+    'Online': colors.accent,
+    'In-store': colors.success,
+    'Delivery': colors.warning,
+    'Takeout': colors.secondary,
+    'Drive-thru': colors.tertiary
   };
 
   const tooltip = d3.select("body").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-  // Create bars
-  g.selectAll(".bar")
-    .data(validGrouped)
-    .enter().append("rect")
-    .attr("class", "bar")
-    .attr("x", d => x(d[0]))
-    .attr("width", x.bandwidth())
-    .attr("y", height)
-    .attr("height", 0)
-    .attr("fill", d => colorMap[d[0]] || colors.accent)
-    .attr("rx", 6)
+  // Create pie slices
+  const slices = g.selectAll(".slice")
+    .data(pie(validGrouped))
+    .enter().append("g")
+    .attr("class", "slice");
+
+  slices.append("path")
+    .attr("d", arc)
+    .attr("fill", d => colorMap[d.data[0]] || colors.tertiary)
+    .attr("stroke", "white")
+    .attr("stroke-width", 3)
     .style("cursor", "pointer")
     .on("mouseover", function(event, d) {
-      d3.select(this)
-        .transition().duration(200)
-        .attr("opacity", 0.8)
-        .attr("stroke", colors.dark)
-        .attr("stroke-width", 2);
+      d3.select(this).transition().duration(200).attr("d", d3.arc()
+        .innerRadius(0)
+        .outerRadius(radius + 8));
       
       const total = d3.sum(validGrouped, d => d[1].quantity);
-      const percentage = ((d[1].quantity / total) * 100).toFixed(1);
-      const avgOrder = d[1].quantity > 0 ? (d[1].revenue / d[1].quantity).toFixed(2) : "0.00";
+      const percentage = ((d.data[1].quantity / total) * 100).toFixed(1);
+      const avgOrder = d.data[1].quantity > 0 ? (d.data[1].revenue / d.data[1].quantity).toFixed(2) : "0.00";
       
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
-        <div style="font-weight: bold; margin-bottom: 5px;">${d[0]}</div>
-        <div>Orders: <strong>${d[1].quantity}</strong> (${percentage}%)</div>
-        <div>Revenue: <strong>${formatNumber(d[1].revenue)}</strong></div>
+        <div style="font-weight: bold; margin-bottom: 5px;">${d.data[0]}</div>
+        <div>Orders: <strong>${d.data[1].quantity}</strong> (${percentage}%)</div>
+        <div>Revenue: <strong>${formatNumber(d.data[1].revenue)}</strong></div>
         <div>Avg per Order: <strong>${avgOrder}</strong></div>
       `)
       .style("left", (event.pageX + 10) + "px")
       .style("top", (event.pageY - 80) + "px");
     })
     .on("mouseout", function(d) {
-      d3.select(this)
-        .transition().duration(200)
-        .attr("opacity", 1)
-        .attr("stroke", "none");
+      d3.select(this).transition().duration(200).attr("d", arc);
       tooltip.transition().duration(300).style("opacity", 0);
-    })
-    .transition()
-    .duration(800)
-    .delay((d, i) => i * 200)
-    .attr("y", d => y(d[1].quantity))
-    .attr("height", d => height - y(d[1].quantity));
+    });
 
-  // Add value labels on bars
-  g.selectAll(".bar-label")
-    .data(validGrouped)
-    .enter().append("text")
-    .attr("class", "bar-label")
-    .attr("x", d => x(d[0]) + x.bandwidth()/2)
-    .attr("y", height)
+  // Add percentage labels on slices
+  slices.append("text")
+    .attr("transform", d => `translate(${arc.centroid(d)})`)
+    .attr("dy", ".35em")
     .attr("text-anchor", "middle")
-    .attr("font-size", "14px")
-    .attr("font-weight", "bold")
-    .attr("fill", "white")
-    .text(d => d[1].quantity)
-    .transition()
-    .duration(800)
-    .delay((d, i) => i * 200)
-    .attr("y", d => y(d[1].quantity) - 8);
-
-  // Add percentage labels
-  g.selectAll(".percentage-label")
-    .data(validGrouped)
-    .enter().append("text")
-    .attr("class", "percentage-label")
-    .attr("x", d => x(d[0]) + x.bandwidth()/2)
-    .attr("y", height)
-    .attr("text-anchor", "middle")
-    .attr("font-size", "12px")
-    .attr("font-weight", "500")
-    .attr("fill", "white")
+    .style("font-size", "14px")
+    .style("font-weight", "bold")
+    .style("fill", "white")
     .text(d => {
       const total = d3.sum(validGrouped, d => d[1].quantity);
-      return ((d[1].quantity / total) * 100).toFixed(0) + "%";
-    })
-    .transition()
-    .duration(800)
-    .delay((d, i) => i * 200)
-    .attr("y", d => y(d[1].quantity) + 25);
+      const percentage = ((d.data[1].quantity / total) * 100).toFixed(0);
+      return percentage > 10 ? percentage + "%" : "";
+    });
 
-  // Add axes
-  g.append("g")
-    .attr("class", "axis")
-    .attr("transform", `translate(0,${height})`)
-    .call(d3.axisBottom(x))
-    .selectAll("text")
-    .style("font-size", "14px")
-    .style("font-weight", "600");
-
-  g.append("g")
-    .attr("class", "axis")
-    .call(d3.axisLeft(y));
-
-  // Add axis labels
+  // Add center label
   g.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", "rotate(-90)")
-    .attr("y", 0 - margin.left + 20)
-    .attr("x", 0 - (height / 2))
-    .attr("dy", "1em")
-    .style("text-anchor", "middle")
-    .style("font-size", "14px")
-    .style("font-weight", "500")
-    .style("fill", colors.dark)
-    .text("Number of Orders");
+    .attr("text-anchor", "middle")
+    .attr("font-size", "16px")
+    .attr("font-weight", "bold")
+    .attr("fill", colors.primary)
+    .attr("y", -10)
+    .text(`${product}`);
 
   g.append("text")
-    .attr("class", "axis-label")
-    .attr("transform", `translate(${width / 2}, ${height + 60})`)
-    .style("text-anchor", "middle")
-    .style("font-size", "14px")
+    .attr("text-anchor", "middle")
+    .attr("y", 10)
+    .attr("font-size", "13px")
+    .attr("fill", colors.secondary)
+    .text(`Purchase Channels in ${city}`);
+
+  // Add legend
+  const legend = svg.append("g")
+    .attr("class", "legend")
+    .attr("transform", `translate(20, 30)`);
+
+  validGrouped.forEach((d, i) => {
+    const legendRow = legend.append("g")
+      .attr("transform", `translate(0, ${i * 25})`);
+
+    legendRow.append("circle")
+      .attr("cx", 8)
+      .attr("cy", 8)
+      .attr("r", 8)
+      .attr("fill", colorMap[d[0]] || colors.tertiary);
+
+    legendRow.append("text")
+      .attr("x", 25)
+      .attr("y", 8)
+      .attr("dy", "0.35em")
+      .style("font-size", "13px")
+      .style("font-weight", "500")
+      .style("fill", colors.primary)
+      .text(d[0]);
+
+    const total = d3.sum(validGrouped, d => d[1].quantity);
+    const percentage = ((d[1].quantity / total) * 100).toFixed(1);
+    
+    legendRow.append("text")
+      .attr("x", 120)
+      .attr("y", 8)
+      .attr("dy", "0.35em")
+      .style("font-size", "12px")
+      .style("fill", colors.secondary)
+      .text(`${d[1].quantity} orders (${percentage}%)`);
+  });
+
+  // Add professional annotation for dominant channel
+  const topChannel = validGrouped[0];
+  const topSlice = pie(validGrouped).find(d => d.data[0] === topChannel[0]);
+  
+  const annotations = [{
+    note: {
+      label: `${((topChannel[1].quantity / d3.sum(validGrouped, d => d[1].quantity)) * 100).toFixed(0)}% preference`,
+      title: `${topChannel[0]}: Dominant Channel`,
+      wrap: 120,
+      align: "left"
+    },
+    x: arc.centroid(topSlice)[0] * 1.5,
+    y: arc.centroid(topSlice)[1] * 1.5,
+    dy: -20,
+    dx: 30,
+    type: d3.annotationCalloutElbow,
+    subject: {
+      radius: 8
+    }
+  }];
+
+  const makeAnnotations = d3.annotation()
+    .annotations(annotations);
+
+  g.append("g")
+    .attr("class", "annotation-group")
+    .style("font-size", "12px")
     .style("font-weight", "500")
-    .style("fill", colors.dark)
-    .text("Purchase Channel");
+    .call(makeAnnotations);
 
   // Update insights
   if (validGrouped.length > 0) {
-    const topChannel = validGrouped[0];
     const total = d3.sum(validGrouped, d => d[1].quantity);
     const topPercentage = ((topChannel[1].quantity / total) * 100).toFixed(0);
     
     let recommendation = "";
     if (topChannel[0] === "Online") {
-      recommendation = "Invest in digital marketing and mobile app optimization";
+      recommendation = "Invest in digital marketing and mobile app optimization for 2023";
     } else if (topChannel[0] === "In-store") {
-      recommendation = "Focus on enhancing in-store experience and staff training";
+      recommendation = "Focus on enhancing in-store experience and staff training for 2023";
     } else {
-      recommendation = `Optimize ${topChannel[0]} operations for better customer experience`;
+      recommendation = `Optimize ${topChannel[0]} operations for better customer experience in 2023`;
     }
     
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> is preferred by ${topPercentage}% of customers</p>
       <p>• Total orders: <strong>${total}</strong> for ${product} in ${city}</p>
       <p>• <strong>2023 Strategy:</strong> ${recommendation}</p>
+      <p>• Consider channel-specific promotions to boost underperforming options</p>
     `;
   }
 }
