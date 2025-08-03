@@ -110,6 +110,8 @@ function showOverview() {
             <h4 style="margin: 0 0 15px 0; color: #2d3748; font-size: 16px; font-weight: 600;">💡 Key Insights</h4>
             <div id="overview-insights">
               <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
+              <p>• Focus expansion on top-performing cities</p>
+              <p>• Consider operational improvements in underperforming markets</p>
             </div>
           </div>
         </div>
@@ -222,6 +224,11 @@ function createCityChart() {
     v => d3.sum(v, d => d.Revenue), 
     d => d.City
   );
+
+  const x = d3.scaleBand()
+    .domain(grouped.map(d => d[0]))
+    .range([0, width])
+    .padding(0.4);  // More padding between bars
 
   const y = d3.scaleLinear()
     .domain([0, d3.max(grouped, d => d[1]) * 1.3]) // Extra space at top
@@ -420,6 +427,8 @@ function createCityChart() {
   document.getElementById('overview-insights').innerHTML = `
     <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
+    <p>• Focus expansion on top-performing cities for maximum ROI</p>
+    <p>• Consider market entry strategies for underperforming regions</p>
   `;
 }
 
@@ -453,6 +462,10 @@ function createProductChart(city) {
     .domain([0, d3.max(grouped, d => d[1]) * 1.15])
     .range([0, width]);
 
+  const y = d3.scaleBand()
+    .domain(grouped.map(d => d[0]))
+    .range([0, height])
+    .padding(0.3);
 
   // Beautiful gradient colors for each bar
   const defs = svg.append("defs");
@@ -866,6 +879,13 @@ function createChannelChart(city, product) {
     
     // Draw line to pie slice
     const sliceCentroid = arc.centroid(topSlice);
+    annotationGroup.append("line")
+      .attr("x1", centerX + sliceCentroid[0] * 1.1)
+      .attr("y1", centerY + sliceCentroid[1] * 1.1)
+      .attr("x2", annotationX - 10)
+      .attr("y2", annotationY + 10)
+      .attr("stroke", colors.accent)
+      .attr("stroke-width", 2);
     
     annotationGroup.append("circle")
       .attr("cx", centerX + sliceCentroid[0] * 1.1)
@@ -912,6 +932,8 @@ function createChannelChart(city, product) {
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
       <p>• Total orders: <strong>${totalQuantity}</strong> for this product</p>
+      <p>• <strong>Strategy:</strong> ${recommendation}</p>
+      <p>• Consider channel-specific promotions to boost alternatives</p>
     `;
   }
 }
