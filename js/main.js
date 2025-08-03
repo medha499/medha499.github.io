@@ -276,8 +276,8 @@ function createCityChart() {
       tooltip.transition().duration(200).style("opacity", .95);
       tooltip.html(`
         <div style="font-weight: bold; margin-bottom: 8px; font-size: 14px;">${d[0]}</div>
-        <div style="margin: 4px 0;">2022 Revenue: <strong>$${formatNumber(d[1])}</strong></div>
-        <div style="margin: 4px 0;">2023 Projection: <strong>$${formatNumber(d[1] * 1.15)}</strong></div>
+        <div style="margin: 4px 0;">2022 Revenue: <strong>${formatNumber(d[1])}</strong></div>
+        <div style="margin: 4px 0;">2023 Projection: <strong>${formatNumber(Math.round(d[1] * 1.15))}</strong></div>
         <div style="margin-top: 10px; font-style: italic; color: #718096; font-size: 12px;">Click to explore products</div>
       `)
       .style("left", (event.pageX + 15) + "px")
@@ -422,9 +422,9 @@ function createCityChart() {
     .style("font-weight", "700")
     .style("fill", colors.primary);
 
-  // Update insights with real data
+  // Update insights with real data - CLEAN formatting
   document.getElementById('overview-insights').innerHTML = `
-    <p>• <strong>${topCity[0]}</strong> leads with $${formatNumber(topCity[1])} revenue</p>
+    <p>• <strong>${topCity[0]}</strong> leads with ${formatNumber(topCity[1])} revenue</p>
     <p>• Projected 2023 growth: <strong>12-18%</strong> across all markets</p>
     <p>• Focus expansion on top-performing cities for maximum ROI</p>
     <p>• Consider market entry strategies for underperforming regions</p>
@@ -520,7 +520,7 @@ function createProductChart(city) {
     .delay((d, i) => i * 100)
     .attr("width", d => x(d[1]));
 
-  // Value labels RIGHT outside bars for perfect visibility
+  // Value labels RIGHT outside bars for perfect visibility - FIXED FORMATTING
   g.selectAll(".bar-label")
     .data(grouped)
     .enter().append("text")
@@ -536,7 +536,7 @@ function createProductChart(city) {
     .transition()
     .duration(800)
     .delay((d, i) => i * 100)
-    .attr("x", d => x(d[1]) + 8); // Position just outside bar end
+    .attr("x", d => x(d[1]) + 10); // Position just outside bar end
 
   // Create X axis
   const xAxis = g.append("g")
@@ -600,12 +600,13 @@ function createProductChart(city) {
     .style("fill", colors.primary)
     .text("Product Category");
 
-  // Simple annotation for top product
+  // Simple annotation for top product with clean numbers
   const topProduct = grouped[0];
+  const topMarketShare = ((topProduct[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(0);
   
   const annotations = [{
     note: {
-      label: `${((topProduct[1] / d3.sum(grouped, d => d[1])) * 100).toFixed(1)}% market share`,
+      label: `${topMarketShare}% market share`,
       title: `Top Performer`,
       wrap: 120,
       align: "left"
@@ -806,8 +807,9 @@ function createChannelChart(city, product) {
     .style("fill", "white")
     .style("text-shadow", "2px 2px 4px rgba(0,0,0,0.8)")
     .text(d => {
-      const total = d3.sum(validGrouped, d => d[1].quantity);
-      const percentage = ((d.data[1].quantity / total) * 100).toFixed(0);
+      const total = d3.sum(validGrouped, d => Math.round(d[1].quantity));
+      const cleanQuantity = Math.round(d.data[1].quantity);
+      const percentage = Math.round((cleanQuantity / total) * 100);
       return percentage > 10 ? percentage + "%" : "";
     });
 
@@ -841,7 +843,7 @@ function createChannelChart(city, product) {
     .style("fill", colors.secondary)
     .text(`in ${city}`);
 
-  // Legend items with clean spacing
+  // Legend items with FIXED formatting
   validGrouped.forEach((d, i) => {
     const legendRow = legend.append("g")
       .attr("transform", `translate(0, ${50 + i * 45})`);
@@ -862,14 +864,15 @@ function createChannelChart(city, product) {
       .text(d[0]);
 
     const total = d3.sum(validGrouped, d => d[1].quantity);
-    const percentage = ((d[1].quantity / total) * 100).toFixed(1);
+    const percentage = ((d[1].quantity / total) * 100).toFixed(0);
+    const cleanQuantity = Math.round(d[1].quantity);
     
     legendRow.append("text")
       .attr("x", 30)
       .attr("y", 28)
       .style("font-size", "13px")
       .style("fill", colors.secondary)
-      .text(`${d[1].quantity} orders (${percentage}%)`);
+      .text(`${cleanQuantity} orders (${percentage}%)`);
   });
 
   // SIMPLE annotation for top channel - positioned clearly
@@ -908,19 +911,24 @@ function createChannelChart(city, product) {
       .style("fill", colors.primary)
       .text("Dominant Channel");
     
+    const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
+    const topQuantity = Math.round(topChannel[1].quantity);
+    const dominantPercentage = Math.round((topQuantity / totalQuantity) * 100);
+    
     annotationGroup.append("text")
       .attr("x", annotationX)
       .attr("y", annotationY + 20)
       .style("font-size", "13px")
       .style("fill", colors.secondary)
-      .text(`${((topChannel[1].quantity / d3.sum(validGrouped, d => d[1].quantity)) * 100).toFixed(0)}% customer preference`);
+      .text(`${dominantPercentage}% customer preference`);
   }
 
-  // Update insights
+  // Update insights with CLEAN numbers
   if (validGrouped.length > 0) {
-    const total = d3.sum(validGrouped, d => d[1].quantity);
+    const totalQuantity = d3.sum(validGrouped, d => Math.round(d[1].quantity));
     const topChannel = validGrouped[0];
-    const topPercentage = ((topChannel[1].quantity / total) * 100).toFixed(0);
+    const topQuantity = Math.round(topChannel[1].quantity);
+    const topPercentage = Math.round((topQuantity / totalQuantity) * 100);
     
     let recommendation = "";
     if (topChannel[0].includes("Online")) {
@@ -933,19 +941,22 @@ function createChannelChart(city, product) {
     
     document.getElementById('channel-insights').innerHTML = `
       <p>• <strong>${topChannel[0]}</strong> preferred by ${topPercentage}% of customers</p>
-      <p>• Total orders: <strong>${total}</strong> for this product</p>
+      <p>• Total orders: <strong>${totalQuantity}</strong> for this product</p>
       <p>• <strong>Strategy:</strong> ${recommendation}</p>
       <p>• Consider channel-specific promotions to boost alternatives</p>
     `;
   }
 }
 
-// Utility function for number formatting
+// FIXED Utility function for clean number formatting
 function formatNumber(num) {
-  if (num >= 1000000) {
-    return (num / 1000000).toFixed(1) + 'M';
-  } else if (num >= 1000) {
-    return (num / 1000).toFixed(1) + 'K';
+  // Clean the number first
+  const cleanNum = Math.round(Number(num));
+  
+  if (cleanNum >= 1000000) {
+    return (cleanNum / 1000000).toFixed(1) + 'M';
+  } else if (cleanNum >= 1000) {
+    return (cleanNum / 1000).toFixed(0) + 'K';
   }
-  return Math.round(num).toLocaleString();
+  return cleanNum.toLocaleString();
 }
